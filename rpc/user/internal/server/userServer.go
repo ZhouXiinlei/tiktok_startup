@@ -5,14 +5,15 @@ package server
 
 import (
 	"context"
-	logic2 "tikstart/rpc/user/internal/logic"
+
+	"tikstart/rpc/user/internal/logic"
 	"tikstart/rpc/user/internal/svc"
-	user2 "tikstart/rpc/user/user"
+	"tikstart/rpc/user/user"
 )
 
 type UserServer struct {
 	svcCtx *svc.ServiceContext
-	user2.UnimplementedUserServer
+	user.UnimplementedUserServer
 }
 
 func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
@@ -21,22 +22,42 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 	}
 }
 
-func (s *UserServer) Ping(ctx context.Context, in *user2.PingRequest) (*user2.PingResponse, error) {
-	l := logic2.NewPingLogic(ctx, s.svcCtx)
+func (s *UserServer) Ping(ctx context.Context, in *user.PingRequest) (*user.PingResponse, error) {
+	l := logic.NewPingLogic(ctx, s.svcCtx)
 	return l.Ping(in)
 }
 
-func (s *UserServer) Create(ctx context.Context, in *user2.CreateRequest) (*user2.CreateResponse, error) {
-	l := logic2.NewCreateLogic(ctx, s.svcCtx)
+func (s *UserServer) Create(ctx context.Context, in *user.CreateRequest) (*user.CreateResponse, error) {
+	l := logic.NewCreateLogic(ctx, s.svcCtx)
 	return l.Create(in)
 }
 
-func (s *UserServer) QueryById(ctx context.Context, in *user2.QueryByIdRequest) (*user2.QueryResponse, error) {
-	l := logic2.NewQueryByIdLogic(ctx, s.svcCtx)
+func (s *UserServer) QueryById(ctx context.Context, in *user.QueryByIdRequest) (*user.QueryResponse, error) {
+	l := logic.NewQueryByIdLogic(ctx, s.svcCtx)
 	return l.QueryById(in)
 }
 
-func (s *UserServer) QueryByName(ctx context.Context, in *user2.QueryByNameRequest) (*user2.QueryResponse, error) {
-	l := logic2.NewQueryByNameLogic(ctx, s.svcCtx)
+func (s *UserServer) QueryByName(ctx context.Context, in *user.QueryByNameRequest) (*user.QueryResponse, error) {
+	l := logic.NewQueryByNameLogic(ctx, s.svcCtx)
 	return l.QueryByName(in)
+}
+
+func (s *UserServer) Follow(ctx context.Context, in *user.FollowRequest) (*user.Empty, error) {
+	l := logic.NewFollowLogic(ctx, s.svcCtx)
+	return l.Follow(in)
+}
+
+func (s *UserServer) UnFollow(ctx context.Context, in *user.UnFollowRequest) (*user.Empty, error) {
+	l := logic.NewUnFollowLogic(ctx, s.svcCtx)
+	return l.UnFollow(in)
+}
+
+func (s *UserServer) GetFollowerList(ctx context.Context, in *user.GetFollowerListRequest) (*user.GetFollowerListResponse, error) {
+	l := logic.NewGetFollowerListLogic(ctx, s.svcCtx)
+	return l.GetFollowerList(in)
+}
+
+func (s *UserServer) GetFollowingList(ctx context.Context, in *user.GetFollowingListRequest) (*user.GetFollowingListResponse, error) {
+	l := logic.NewGetFollowingListLogic(ctx, s.svcCtx)
+	return l.GetFollowingList(in)
 }
