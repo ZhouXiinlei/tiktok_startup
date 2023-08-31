@@ -29,7 +29,7 @@ func NewUnFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnFollow
 
 func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) {
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
-		res := tx.Where("follower_id = ? AND followed_id = ?", in.UserId, in.WillUnfollow).Delete(&model.Follow{})
+		res := tx.Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).Delete(&model.Follow{})
 		if err := res.Error; err != nil {
 			return utils.InternalWithDetails("error deleting follow relation", err)
 		}
@@ -42,7 +42,7 @@ func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) 
 			return utils.InternalWithDetails("error reducing following_count", err)
 		}
 
-		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.WillUnfollow).UpdateColumn("follower_count", gorm.Expr("follower_count - ?", 1)).Error
+		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.TargetId).UpdateColumn("follower_count", gorm.Expr("follower_count - ?", 1)).Error
 		if err != nil {
 			return utils.InternalWithDetails("error reducing follower_count", err)
 		}

@@ -41,7 +41,7 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 			DoNothing: true,
 		}).Create(&model.Follow{
 			FollowerId: in.UserId,
-			FollowedId: in.WillFollow,
+			FollowedId: in.TargetId,
 		})
 
 		// firstly check error
@@ -59,7 +59,7 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 			return utils.InternalWithDetails("error adding following_count", err)
 		}
 
-		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.WillFollow).UpdateColumn("follower_count", gorm.Expr("follower_count + ?", 1)).Error
+		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.TargetId).UpdateColumn("follower_count", gorm.Expr("follower_count + ?", 1)).Error
 		if err != nil {
 			return utils.InternalWithDetails("error adding follower_count", err)
 		}

@@ -24,8 +24,8 @@ type User struct {
 
 type Follow struct {
 	//ID         int64     `gorm:"not null;primaryKey;autoIncrement"`
-	FollowerId int64     `gorm:"column:follower_id;not null;primaryKey"`
-	FollowedId int64     `gorm:"column:followed_id;not null;primaryKey"`
+	FollowerId int64     `gorm:"not null;primaryKey"`
+	FollowedId int64     `gorm:"not null;primaryKey"`
 	CreatedAt  time.Time `gorm:"not null;"`
 	//UpdatedAt  time.Time `gorm:"not null;"`
 

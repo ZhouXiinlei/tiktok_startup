@@ -31,14 +31,14 @@ message QueryByNameRequest {
 message QueryResponse {
   int64 user_id = 1;
   string username = 2;
-  //  int64 follow_count = 3;
-  //  int64 follower_count = 4;
-  //  string avatar = 6;
-  //  string background_image = 7;
-  //  string signature = 8;
-  //  int64 total_favorited = 9;
-  //  int64 work_count = 10;
-  //  int64 favorite_count = 11;
+  int64 follow_count = 3;
+  int64 follower_count = 4;
+  string avatar = 6;
+  string background_image = 7;
+  string signature = 8;
+  int64 total_favorited = 9;
+  int64 work_count = 10;
+  int64 favorite_count = 11;
   bytes password = 12;
   int64 created_at = 15;
   int64 updated_at = 16;
@@ -48,20 +48,35 @@ message Empty{}
 
 message FollowRequest{
   int64 user_id = 1;
-  int64 will_follow = 2;
+  int64 target_id = 2;
 }
 
 message UnFollowRequest{
   int64 user_id = 1;
-  int64 will_unfollow = 2;
+  int64 target_id = 2;
 }
 
 message GetFollowerListRequest{
   int64 user_id = 1;
 }
 
+message UserInfo {
+  int64 id = 1;
+  string name = 2;
+  int64 follow_count = 3;
+  int64 follower_count = 4;
+  string avatar = 6;
+  string background_image = 7;
+  string signature = 8;
+  int64 total_favorited = 9;
+  int64 work_count = 10;
+  int64 favorite_count = 11;
+  int64 created_at = 15;
+  int64 updated_at = 16;
+}
+
 message GetFollowerListResponse{
-  repeated int64 follower_list = 1;
+  repeated UserInfo follower_list = 1;
 }
 
 message GetFollowingListRequest{
@@ -70,6 +85,15 @@ message GetFollowingListRequest{
 
 message GetFollowingListResponse{
   repeated int64 following_list = 1;
+}
+
+message IsFollowRequest{
+  int64 user_id = 1;
+  int64 target_id = 2;
+}
+
+message IsFollowResponse{
+  bool is_follow = 1;
 }
 
 service User {
@@ -81,4 +105,5 @@ service User {
   rpc UnFollow(UnFollowRequest) returns(Empty);
   rpc GetFollowerList(GetFollowerListRequest) returns(GetFollowerListResponse);
   rpc GetFollowingList(GetFollowingListRequest) returns(GetFollowingListResponse);
+  rpc IsFollow(IsFollowRequest) returns(IsFollowResponse);
 }
