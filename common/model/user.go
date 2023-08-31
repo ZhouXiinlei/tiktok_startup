@@ -17,16 +17,17 @@ type User struct {
 	UpdatedAt time.Time `gorm:"not null"`
 	DeletedAt gorm.DeletedAt
 
-	Following []*User `gorm:"many2many:follow;foreignKey:UserId;joinForeignKey:FollowerID;References:UserId;JoinReferences:FollowedID"`
-	Followers []*User `gorm:"many2many:follow;foreignKey:UserId;joinForeignKey:FollowedID;References:UserId;JoinReferences:FollowerID"`
+	// 前User关注后User的多对多关系用follow表来表示; 前User使用UserId作为主键，在follow表中叫做FollowerId; 后User使用UserId作为主键，在follow表中的主键叫做FollowedId
+	Following []User `gorm:"many2many:follow;foreignKey:UserId;joinForeignKey:FollowerId;References:UserId;JoinReferences:FollowedID"`
+	Followers []User `gorm:"many2many:follow;foreignKey:UserId;joinForeignKey:FollowedId;References:UserId;JoinReferences:FollowerID"`
 }
 
 type Follow struct {
 	ID         int64     `gorm:"primaryKey;autoIncrement"`
-	FollowerID int64     `gorm:"not null"`
-	FollowedID int64     `gorm:"not null"`
-	CreatedAt  time.Time `gorm:"not null"`
+	FollowerId int64     `gorm:"not null"`
+	FollowedId int64     `gorm:"not null"`
+	CreatedAt  time.Time `gorm:"not null;default:CURRENT_TIMESTAMP(3)"`
 
-	Follower User `gorm:"foreignKey:FollowerID"`
-	Followed User `gorm:"foreignKey:FollowedID"`
+	Follower User `gorm:"foreignKey:FollowerId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Followed User `gorm:"foreignKey:FollowedId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
