@@ -32,9 +32,17 @@ type LoginResponse struct {
 }
 
 type User struct {
-	Id       int64  `json:"id"`
-	Name     string `json:"name"`
-	IsFollow bool   `json:"is_follow"`
+	Id                 int64  `json:"id"`
+	Name               string `json:"name"`
+	FollowCount        int64  `json:"follow_count"`
+	FollowerCount      int64  `json:"follower_count"`
+	IsFollow           bool   `json:"is_follow"`
+	AvatarUrl          string `json:"avatar"`
+	BackgroundImageUrl string `json:"background_image"`
+	Signature          string `json:"signature"`
+	TotalFavorited     string `json:"total_favorited"`
+	WorkCount          int64  `json:"work_count"`
+	FavoriteCount      int64  `json:"favorite_count"`
 }
 
 type GetUserInfoRequest struct {
@@ -77,4 +85,13 @@ type GetVideoListResponse struct {
 	BasicResponse
 	Next_time int64   `json:"next_time"`
 	VideoList []Video `json:"video_list"`
+}
+
+type PublishVideoRequest struct {
+	Title string `form:"title"`
+	Token string `form:"token"`
+}
+
+type PublishVideoResponse struct {
+	BasicResponse
 }

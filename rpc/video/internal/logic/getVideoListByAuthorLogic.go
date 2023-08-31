@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"tikstart/common/model"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 
@@ -23,7 +24,25 @@ func NewGetVideoListByAuthorLogic(ctx context.Context, svcCtx *svc.ServiceContex
 }
 
 func (l *GetVideoListByAuthorLogic) GetVideoListByAuthor(in *video.GetVideoListByAuthorRequest) (*video.GetVideoListByAuthorResponse, error) {
-	// todo: add your logic here and delete this line
-
-	return &video.GetVideoListByAuthorResponse{}, nil
+	var videos []model.Video
+	err := l.svcCtx.Mysql.Where("author_id = ?", in.AuthorId).
+		Order("created_at desc").
+		Find(&videos).Error
+	if err != nil {
+		return nil, err
+	}
+	resp := &video.GetVideoListByAuthorResponse{}
+	for _, v := range videos {
+		videoInfo := &video.VideoInfo{
+			Id:            int64(v.ID),
+			AuthorId:      v.AuthorId,
+			Title:         v.Title,
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.FavoriteCount,
+			CommentCount:  v.CommentCount,
+		}
+		resp.Video = append(resp.Video, videoInfo)
+	}
+	return resp, nil
 }
