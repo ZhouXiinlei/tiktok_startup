@@ -94,12 +94,17 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 			}
 			isFavorite = IsFavoriteVideoReply.IsFavorite
 		}
+		isFollow := false
+		if userId != 0 {
+
+		}
 		resp.VideoList = append(resp.VideoList, types.Video{
 			Id:    v.Id,
 			Title: v.Title,
 			Author: types.User{
-				Id:   v.AuthorId,
-				Name: GetUserInfoResponse.Username,
+				Id:       v.AuthorId,
+				Name:     GetUserInfoResponse.Username,
+				IsFollow: isFollow,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,

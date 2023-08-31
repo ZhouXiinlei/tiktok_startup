@@ -5,35 +5,36 @@ package videoClient
 
 import (
 	"context"
-	video2 "tikstart/rpc/video/video"
+
+	"tikstart/rpc/video/video"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	Comment                      = video2.Comment
-	CommentVideoRequest          = video2.CommentVideoRequest
-	CommentVideoResponse         = video2.CommentVideoResponse
-	DeleteVideoCommentRequest    = video2.DeleteVideoCommentRequest
-	Empty                        = video2.Empty
-	FavoriteVideoRequest         = video2.FavoriteVideoRequest
-	GetCommentInfoRequest        = video2.GetCommentInfoRequest
-	GetCommentInfoResponse       = video2.GetCommentInfoResponse
-	GetCommentListRequest        = video2.GetCommentListRequest
-	GetCommentListResponse       = video2.GetCommentListResponse
-	GetFavoriteVideoListRequest  = video2.GetFavoriteVideoListRequest
-	GetFavoriteVideoListResponse = video2.GetFavoriteVideoListResponse
-	GetVideoListByAuthorRequest  = video2.GetVideoListByAuthorRequest
-	GetVideoListByAuthorResponse = video2.GetVideoListByAuthorResponse
-	GetVideoListRequest          = video2.GetVideoListRequest
-	GetVideoListResponse         = video2.GetVideoListResponse
-	IsFavoriteVideoRequest       = video2.IsFavoriteVideoRequest
-	IsFavoriteVideoResponse      = video2.IsFavoriteVideoResponse
-	PublishVideoRequest          = video2.PublishVideoRequest
-	UnFavoriteVideoRequest       = video2.UnFavoriteVideoRequest
-	UpdateVideoRequest           = video2.UpdateVideoRequest
-	VideoInfo                    = video2.VideoInfo
+	Comment                      = video.Comment
+	CommentVideoRequest          = video.CommentVideoRequest
+	CommentVideoResponse         = video.CommentVideoResponse
+	DeleteVideoCommentRequest    = video.DeleteVideoCommentRequest
+	Empty                        = video.Empty
+	FavoriteVideoRequest         = video.FavoriteVideoRequest
+	GetCommentInfoRequest        = video.GetCommentInfoRequest
+	GetCommentInfoResponse       = video.GetCommentInfoResponse
+	GetCommentListRequest        = video.GetCommentListRequest
+	GetCommentListResponse       = video.GetCommentListResponse
+	GetFavoriteVideoListRequest  = video.GetFavoriteVideoListRequest
+	GetFavoriteVideoListResponse = video.GetFavoriteVideoListResponse
+	GetVideoListByAuthorRequest  = video.GetVideoListByAuthorRequest
+	GetVideoListByAuthorResponse = video.GetVideoListByAuthorResponse
+	GetVideoListRequest          = video.GetVideoListRequest
+	GetVideoListResponse         = video.GetVideoListResponse
+	IsFavoriteVideoRequest       = video.IsFavoriteVideoRequest
+	IsFavoriteVideoResponse      = video.IsFavoriteVideoResponse
+	PublishVideoRequest          = video.PublishVideoRequest
+	UnFavoriteVideoRequest       = video.UnFavoriteVideoRequest
+	UpdateVideoRequest           = video.UpdateVideoRequest
+	VideoInfo                    = video.VideoInfo
 
 	Video interface {
 		GetVideoList(ctx context.Context, in *GetVideoListRequest, opts ...grpc.CallOption) (*GetVideoListResponse, error)
@@ -62,61 +63,61 @@ func NewVideo(cli zrpc.Client) Video {
 }
 
 func (m *defaultVideo) GetVideoList(ctx context.Context, in *GetVideoListRequest, opts ...grpc.CallOption) (*GetVideoListResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.GetVideoList(ctx, in, opts...)
 }
 
 func (m *defaultVideo) PublishVideo(ctx context.Context, in *PublishVideoRequest, opts ...grpc.CallOption) (*Empty, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.PublishVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) UpdateVideo(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*Empty, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.UpdateVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) GetVideoListByAuthor(ctx context.Context, in *GetVideoListByAuthorRequest, opts ...grpc.CallOption) (*GetVideoListByAuthorResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.GetVideoListByAuthor(ctx, in, opts...)
 }
 
 func (m *defaultVideo) FavoriteVideo(ctx context.Context, in *FavoriteVideoRequest, opts ...grpc.CallOption) (*Empty, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.FavoriteVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) UnFavoriteVideo(ctx context.Context, in *UnFavoriteVideoRequest, opts ...grpc.CallOption) (*Empty, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.UnFavoriteVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) GetFavoriteVideoList(ctx context.Context, in *GetFavoriteVideoListRequest, opts ...grpc.CallOption) (*GetFavoriteVideoListResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.GetFavoriteVideoList(ctx, in, opts...)
 }
 
 func (m *defaultVideo) IsFavoriteVideo(ctx context.Context, in *IsFavoriteVideoRequest, opts ...grpc.CallOption) (*IsFavoriteVideoResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.IsFavoriteVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) CommentVideo(ctx context.Context, in *CommentVideoRequest, opts ...grpc.CallOption) (*CommentVideoResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.CommentVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) GetCommentList(ctx context.Context, in *GetCommentListRequest, opts ...grpc.CallOption) (*GetCommentListResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.GetCommentList(ctx, in, opts...)
 }
 
 func (m *defaultVideo) DeleteVideoComment(ctx context.Context, in *DeleteVideoCommentRequest, opts ...grpc.CallOption) (*Empty, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.DeleteVideoComment(ctx, in, opts...)
 }
 
 func (m *defaultVideo) GetCommentInfo(ctx context.Context, in *GetCommentInfoRequest, opts ...grpc.CallOption) (*GetCommentInfoResponse, error) {
-	client := video2.NewVideoClient(m.cli.Conn())
+	client := video.NewVideoClient(m.cli.Conn())
 	return client.GetCommentInfo(ctx, in, opts...)
 }

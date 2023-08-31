@@ -5,14 +5,15 @@ package server
 
 import (
 	"context"
-	logic2 "tikstart/rpc/video/internal/logic"
+
+	"tikstart/rpc/video/internal/logic"
 	"tikstart/rpc/video/internal/svc"
-	video2 "tikstart/rpc/video/video"
+	"tikstart/rpc/video/video"
 )
 
 type VideoServer struct {
 	svcCtx *svc.ServiceContext
-	video2.UnimplementedVideoServer
+	video.UnimplementedVideoServer
 }
 
 func NewVideoServer(svcCtx *svc.ServiceContext) *VideoServer {
@@ -21,62 +22,62 @@ func NewVideoServer(svcCtx *svc.ServiceContext) *VideoServer {
 	}
 }
 
-func (s *VideoServer) GetVideoList(ctx context.Context, in *video2.GetVideoListRequest) (*video2.GetVideoListResponse, error) {
-	l := logic2.NewGetVideoListLogic(ctx, s.svcCtx)
+func (s *VideoServer) GetVideoList(ctx context.Context, in *video.GetVideoListRequest) (*video.GetVideoListResponse, error) {
+	l := logic.NewGetVideoListLogic(ctx, s.svcCtx)
 	return l.GetVideoList(in)
 }
 
-func (s *VideoServer) PublishVideo(ctx context.Context, in *video2.PublishVideoRequest) (*video2.Empty, error) {
-	l := logic2.NewPublishVideoLogic(ctx, s.svcCtx)
+func (s *VideoServer) PublishVideo(ctx context.Context, in *video.PublishVideoRequest) (*video.Empty, error) {
+	l := logic.NewPublishVideoLogic(ctx, s.svcCtx)
 	return l.PublishVideo(in)
 }
 
-func (s *VideoServer) UpdateVideo(ctx context.Context, in *video2.UpdateVideoRequest) (*video2.Empty, error) {
-	l := logic2.NewUpdateVideoLogic(ctx, s.svcCtx)
+func (s *VideoServer) UpdateVideo(ctx context.Context, in *video.UpdateVideoRequest) (*video.Empty, error) {
+	l := logic.NewUpdateVideoLogic(ctx, s.svcCtx)
 	return l.UpdateVideo(in)
 }
 
-func (s *VideoServer) GetVideoListByAuthor(ctx context.Context, in *video2.GetVideoListByAuthorRequest) (*video2.GetVideoListByAuthorResponse, error) {
-	l := logic2.NewGetVideoListByAuthorLogic(ctx, s.svcCtx)
+func (s *VideoServer) GetVideoListByAuthor(ctx context.Context, in *video.GetVideoListByAuthorRequest) (*video.GetVideoListByAuthorResponse, error) {
+	l := logic.NewGetVideoListByAuthorLogic(ctx, s.svcCtx)
 	return l.GetVideoListByAuthor(in)
 }
 
-func (s *VideoServer) FavoriteVideo(ctx context.Context, in *video2.FavoriteVideoRequest) (*video2.Empty, error) {
-	l := logic2.NewFavoriteVideoLogic(ctx, s.svcCtx)
+func (s *VideoServer) FavoriteVideo(ctx context.Context, in *video.FavoriteVideoRequest) (*video.Empty, error) {
+	l := logic.NewFavoriteVideoLogic(ctx, s.svcCtx)
 	return l.FavoriteVideo(in)
 }
 
-func (s *VideoServer) UnFavoriteVideo(ctx context.Context, in *video2.UnFavoriteVideoRequest) (*video2.Empty, error) {
-	l := logic2.NewUnFavoriteVideoLogic(ctx, s.svcCtx)
+func (s *VideoServer) UnFavoriteVideo(ctx context.Context, in *video.UnFavoriteVideoRequest) (*video.Empty, error) {
+	l := logic.NewUnFavoriteVideoLogic(ctx, s.svcCtx)
 	return l.UnFavoriteVideo(in)
 }
 
-func (s *VideoServer) GetFavoriteVideoList(ctx context.Context, in *video2.GetFavoriteVideoListRequest) (*video2.GetFavoriteVideoListResponse, error) {
-	l := logic2.NewGetFavoriteVideoListLogic(ctx, s.svcCtx)
+func (s *VideoServer) GetFavoriteVideoList(ctx context.Context, in *video.GetFavoriteVideoListRequest) (*video.GetFavoriteVideoListResponse, error) {
+	l := logic.NewGetFavoriteVideoListLogic(ctx, s.svcCtx)
 	return l.GetFavoriteVideoList(in)
 }
 
-func (s *VideoServer) IsFavoriteVideo(ctx context.Context, in *video2.IsFavoriteVideoRequest) (*video2.IsFavoriteVideoResponse, error) {
-	l := logic2.NewIsFavoriteVideoLogic(ctx, s.svcCtx)
+func (s *VideoServer) IsFavoriteVideo(ctx context.Context, in *video.IsFavoriteVideoRequest) (*video.IsFavoriteVideoResponse, error) {
+	l := logic.NewIsFavoriteVideoLogic(ctx, s.svcCtx)
 	return l.IsFavoriteVideo(in)
 }
 
-func (s *VideoServer) CommentVideo(ctx context.Context, in *video2.CommentVideoRequest) (*video2.CommentVideoResponse, error) {
-	l := logic2.NewCommentVideoLogic(ctx, s.svcCtx)
+func (s *VideoServer) CommentVideo(ctx context.Context, in *video.CommentVideoRequest) (*video.CommentVideoResponse, error) {
+	l := logic.NewCommentVideoLogic(ctx, s.svcCtx)
 	return l.CommentVideo(in)
 }
 
-func (s *VideoServer) GetCommentList(ctx context.Context, in *video2.GetCommentListRequest) (*video2.GetCommentListResponse, error) {
-	l := logic2.NewGetCommentListLogic(ctx, s.svcCtx)
+func (s *VideoServer) GetCommentList(ctx context.Context, in *video.GetCommentListRequest) (*video.GetCommentListResponse, error) {
+	l := logic.NewGetCommentListLogic(ctx, s.svcCtx)
 	return l.GetCommentList(in)
 }
 
-func (s *VideoServer) DeleteVideoComment(ctx context.Context, in *video2.DeleteVideoCommentRequest) (*video2.Empty, error) {
-	l := logic2.NewDeleteVideoCommentLogic(ctx, s.svcCtx)
+func (s *VideoServer) DeleteVideoComment(ctx context.Context, in *video.DeleteVideoCommentRequest) (*video.Empty, error) {
+	l := logic.NewDeleteVideoCommentLogic(ctx, s.svcCtx)
 	return l.DeleteVideoComment(in)
 }
 
-func (s *VideoServer) GetCommentInfo(ctx context.Context, in *video2.GetCommentInfoRequest) (*video2.GetCommentInfoResponse, error) {
-	l := logic2.NewGetCommentInfoLogic(ctx, s.svcCtx)
+func (s *VideoServer) GetCommentInfo(ctx context.Context, in *video.GetCommentInfoRequest) (*video.GetCommentInfoResponse, error) {
+	l := logic.NewGetCommentInfoLogic(ctx, s.svcCtx)
 	return l.GetCommentInfo(in)
 }
