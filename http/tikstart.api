@@ -97,6 +97,14 @@ service tikstart {
 }
 
 @server(
+	group: video
+)
+service tikstart {
+	@handler GetVideoList // 视频流接口
+	get /douyin/feed (GetVideoListRequest) returns (GetVideoListResponse)
+}
+
+@server(
 	group: user
 	prefix: /douyin/user
 )
@@ -118,7 +126,7 @@ service tikstart {
 	get / (GetUserInfoRequest) returns (GetUserInfoResponse)
 }
 
-@server (
+@server(
 	group: social
 	prefix: /douyin/relation
 )
