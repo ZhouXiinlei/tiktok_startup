@@ -53,10 +53,6 @@ message UnFollowRequest{
   int64 target_id = 2;
 }
 
-message GetFollowerListRequest{
-  int64 user_id = 1;
-}
-
 message UserInfo {
   int64 user_id = 1;
   string username = 2;
@@ -65,6 +61,10 @@ message UserInfo {
   bool  is_follow = 14;
   int64 created_at = 15;
   int64 updated_at = 16;
+}
+
+message GetFollowerListRequest{
+  int64 user_id = 1;
 }
 
 message GetFollowerListResponse{
@@ -76,7 +76,7 @@ message GetFollowingListRequest{
 }
 
 message GetFollowingListResponse{
-  repeated int64 following_list = 1;
+  repeated UserInfo following_list = 1;
 }
 
 message IsFollowRequest{
