@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"tikstart/common/model"
 	"tikstart/common/utils"
 
 	"tikstart/rpc/user/internal/svc"
@@ -26,7 +27,7 @@ func NewIsFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsFollow
 
 func (l *IsFollowLogic) IsFollow(in *user.IsFollowRequest) (*user.IsFollowResponse, error) {
 	var count int64
-	err := l.svcCtx.DB.Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).Count(&count).Error
+	err := l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).Count(&count).Error
 	if err != nil {
 		return nil, utils.InternalWithDetails("error querying follow relation", err)
 	}

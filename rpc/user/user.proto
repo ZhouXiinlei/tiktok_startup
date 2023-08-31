@@ -33,12 +33,9 @@ message QueryResponse {
   string username = 2;
   int64 follow_count = 3;
   int64 follower_count = 4;
-  string avatar = 6;
-  string background_image = 7;
-  string signature = 8;
-  int64 total_favorited = 9;
-  int64 work_count = 10;
-  int64 favorite_count = 11;
+  //  string avatar = 6;
+  //  string background_image = 7;
+  //  string signature = 8;
   bytes password = 12;
   int64 created_at = 15;
   int64 updated_at = 16;
@@ -61,16 +58,11 @@ message GetFollowerListRequest{
 }
 
 message UserInfo {
-  int64 id = 1;
-  string name = 2;
-  int64 follow_count = 3;
+  int64 user_id = 1;
+  string username = 2;
+  int64 following_count = 3;
   int64 follower_count = 4;
-  string avatar = 6;
-  string background_image = 7;
-  string signature = 8;
-  int64 total_favorited = 9;
-  int64 work_count = 10;
-  int64 favorite_count = 11;
+  bool  is_follow = 14;
   int64 created_at = 15;
   int64 updated_at = 16;
 }
