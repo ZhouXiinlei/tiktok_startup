@@ -41,7 +41,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    "/douyin/video",
+					Path:    "/douyin/publish/action",
 					Handler: video.PublishVideoHandler(serverCtx),
 				},
 			}...,
