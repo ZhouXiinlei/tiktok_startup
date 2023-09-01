@@ -2,7 +2,7 @@ package video
 
 import (
 	"context"
-
+	"fmt"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
 
@@ -24,7 +24,18 @@ func NewPublishVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Publ
 }
 
 func (l *PublishVideoLogic) PublishVideo(req *types.PublishVideoRequest) (resp *types.PublishVideoResponse, err error) {
-	// todo: add your logic here and delete this line
 
-	return
+	//logx.WithContext(l.ctx).Infof("发布视频: %v", req)
+	//resp.BasicResponse = types.BasicResponse{
+	//	StatusCode: 0,
+	//	StatusMsg:  "Success",
+	//}
+	fmt.Println(req.Title)
+
+	return &types.PublishVideoResponse{
+		BasicResponse: types.BasicResponse{
+			StatusCode: 0,
+			StatusMsg:  "Success",
+		},
+	}, nil
 }

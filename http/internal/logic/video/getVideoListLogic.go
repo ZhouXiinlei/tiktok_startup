@@ -78,7 +78,7 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		//获取视频收藏状态
 		isFavorite := false
 		if userId != 0 {
-			IsFavoriteVideoReply, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
+			IsFavoriteVideoResponse, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
 				UserId:  userId,
 				VideoId: v.Id,
 			})
@@ -92,19 +92,37 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 					Detail: err,
 				}
 			}
-			isFavorite = IsFavoriteVideoReply.IsFavorite
+			isFavorite = IsFavoriteVideoResponse.IsFavorite
 		}
 		isFollow := false
 		if userId != 0 {
+			IsFollowVideoResponse, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &userClient.IsFollowRequest{
+
+				UserId:   userId,
+				TargetId: v.AuthorId,
+			})
+			if err != nil {
+				return nil, schema.ServerError{
+					ApiError: schema.ApiError{
+						StatusCode: 500,
+						Code:       50000,
+						Message:    "Internal Server Error",
+					},
+					Detail: err,
+				}
+			}
+			isFollow = IsFollowVideoResponse.IsFollow
 
 		}
 		resp.VideoList = append(resp.VideoList, types.Video{
 			Id:    v.Id,
 			Title: v.Title,
 			Author: types.User{
-				Id:       v.AuthorId,
-				Name:     GetUserInfoResponse.Username,
-				IsFollow: isFollow,
+				Id:            v.AuthorId,
+				Name:          GetUserInfoResponse.Username,
+				IsFollow:      isFollow,
+				FollowCount:   GetUserInfoResponse.FollowCount,
+				FollowerCount: GetUserInfoResponse.FollowerCount,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
