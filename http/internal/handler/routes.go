@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	app "tikstart/http/internal/handler/app"
+	message "tikstart/http/internal/handler/message"
 	social "tikstart/http/internal/handler/social"
 	user "tikstart/http/internal/handler/user"
 	video "tikstart/http/internal/handler/video"
@@ -89,6 +90,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/friend/list",
+				Handler: social.GetFriendListHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/douyin/relation"),
+	)
+
+	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.JwtAuth},
 			[]rest.Route{
@@ -108,13 +120,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/friend/list",
-				Handler: social.GetFriendListHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/douyin/relation"),
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuth},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/message/chat",
+					Handler: message.ChatHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/message/action",
+					Handler: message.ActionHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/douyin"),
 	)
 }
