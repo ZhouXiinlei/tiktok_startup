@@ -40,11 +40,21 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 		userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
 			UserId: friendID,
 		})
-		if err != nil {
+		if _, match := utils.MatchError(err, common.ErrUserNotFound); match {
 			return nil, schema.ApiError{
 				StatusCode: 422,
-				Code:       42203,
-				Message:    "查询失败",
+				Code:       42202,
+				Message:    "用户不存在",
+			}
+		}
+		if err != nil {
+			return nil, schema.ServerError{
+				ApiError: schema.ApiError{
+					StatusCode: 500,
+					Code:       50000,
+					Message:    "Internal Server Error",
+				},
+				Detail: err,
 			}
 		}
 		users = append(users, types.User{
