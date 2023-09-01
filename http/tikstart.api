@@ -204,7 +204,7 @@ service tikstart {
 	get /friend/list (GetFriendListRequest) returns (GetFriendListResponse)
 }
 
-@server (
+@server(
 	group: video
 	prefix: /douyin/favorite
 	middleware: JwtAuth
@@ -215,4 +215,45 @@ service tikstart {
 
 	@handler GetFavoriteList
 	get /list (GetFavoriteListRequest) returns (GetFavoriteListResponse)
+}
+
+type (
+	Message {
+		Id         int64  `json:"id"`
+		ToUserId   int64  `json:"to_user_id"`
+		FromUserId int64  `json:"from_user_id"`
+		Content    string `json:"content"`
+		CreateTime string `json:"create_time"`
+	}
+	MessageChatRequest {
+		Token      string `form:"token"`
+		ToUserId   int64  `form:"to_user_id"`
+		PreMsgTime int64  `form:"pre_msg_time"`
+	}
+	MessageChatResponse {
+		BasicResponse
+		MessageList []Message `json:"message_list"`
+	}
+	MessageActionRequest {
+		Token      string `form:"token"`
+		ToUserId   int64  `form:"to_user_id"`
+		ActionType int32  `form:"action_type"`
+		Content    string `form:"content"`
+	}
+	MessageActionResponse {
+		BasicResponse
+	}
+)
+
+@server(
+	group: message
+	prefix: /douyin
+	middleware: JwtAuth
+)
+service tikstart {
+	@handler Chat
+	get /message/chat (MessageChatRequest) returns (MessageChatResponse)
+
+	@handler Action
+	post /message/action (MessageActionRequest) returns (MessageActionResponse)
 }
