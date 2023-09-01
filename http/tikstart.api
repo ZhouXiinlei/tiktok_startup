@@ -263,7 +263,7 @@ type (
 		Id         int64  `json:"id"`
 		User       User   `json:"user"`
 		Content    string `json:"content"`
-		CreateTime string `json:"create_time"`
+		CreateDate string `json:"create_date"`
 	}
 	CommentRequest {
 		Token       string `form:"token"`
@@ -274,7 +274,7 @@ type (
 	}
 	CommentResponse {
 		BasicResponse
-		Comment
+		Comment Comment `json:"comment"`
 	}
 	GetCommentListRequest {
 		Token   string `form:"token"`

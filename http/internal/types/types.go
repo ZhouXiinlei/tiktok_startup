@@ -160,7 +160,7 @@ type Comment struct {
 	Id         int64  `json:"id"`
 	User       User   `json:"user"`
 	Content    string `json:"content"`
-	CreateTime string `json:"create_time"`
+	CreateDate string `json:"create_date"`
 }
 
 type CommentRequest struct {
@@ -173,7 +173,7 @@ type CommentRequest struct {
 
 type CommentResponse struct {
 	BasicResponse
-	Comment
+	Comment Comment `json:"comment"`
 }
 
 type GetCommentListRequest struct {
