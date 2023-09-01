@@ -2,11 +2,19 @@ package social
 
 import (
 	"context"
-
+	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
+	"tikstart/http/schema"
+	"tikstart/rpc/user/common"
+	"tikstart/rpc/user/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
+)
+
+const (
+	Follow   = 1
+	UnFollow = 2
 )
 
 type FollowLogic struct {
@@ -24,7 +32,78 @@ func NewFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FollowLogi
 }
 
 func (l *FollowLogic) Follow(req *types.FollowRequest) (resp *types.FollowResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	UserClaims, err := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
+	if err != nil {
+		return nil, schema.ApiError{
+			StatusCode: 422,
+			Code:       42204,
+			Message:    "token解析失败",
+		}
+	}
+	_, err = l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
+		UserId: req.ToUserId,
+	})
+	if _, match := utils.MatchError(err, common.ErrUserNotFound); match {
+		return nil, schema.ApiError{
+			StatusCode: 422,
+			Code:       42202,
+			Message:    "关注的用户不存在",
+		}
+	}
+	if req.ActionType == Follow {
+		res, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &user.IsFollowRequest{
+			UserId:   UserClaims.UserId,
+			TargetId: req.ToUserId,
+		})
+		isFollow := res.IsFollow
+		if isFollow {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42203,
+				Message:    "已经关注过了",
+			}
+		}
+		_, err = l.svcCtx.UserRpc.Follow(l.ctx, &user.FollowRequest{
+			UserId:   UserClaims.UserId,
+			TargetId: req.ToUserId,
+		})
+		if err != nil {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42203,
+				Message:    "关注失败",
+			}
+		}
+	}
+	if req.ActionType == UnFollow {
+		res, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &user.IsFollowRequest{
+			UserId:   UserClaims.UserId,
+			TargetId: req.ToUserId,
+		})
+		isFollow := res.IsFollow
+		if !isFollow {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42203,
+				Message:    "没关注过这个用户",
+			}
+		}
+		_, err = l.svcCtx.UserRpc.UnFollow(l.ctx, &user.UnFollowRequest{
+			UserId:   UserClaims.UserId,
+			TargetId: req.ToUserId,
+		})
+		if err != nil {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42203,
+				Message:    "取消关注失败",
+			}
+		}
+	}
+	return &types.FollowResponse{
+		BasicResponse: types.BasicResponse{
+			StatusCode: 0,
+			StatusMsg:  "Success",
+		},
+	}, nil
 }
