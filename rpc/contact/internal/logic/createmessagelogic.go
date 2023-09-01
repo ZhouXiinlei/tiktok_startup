@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/grpc/status"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/contact/contact"
 	"tikstart/rpc/contact/internal/svc"
 )
@@ -31,8 +31,8 @@ func (l *CreateMessageLogic) CreateMessage(in *contact.CreateMessageRequest) (*c
 		ToUserId: in.ToId,
 		Content:  in.Content,
 	}
-	if err := db.Create(message).Error; err != nil {
-		return nil, status.Error(1000, err.Error())
+	if err := db.Create(&message).Error; err != nil {
+		return nil, utils.InternalWithDetails("error creating message", err)
 	}
 	return &contact.Empty{}, nil
 }

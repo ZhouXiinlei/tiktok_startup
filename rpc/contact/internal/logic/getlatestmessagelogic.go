@@ -2,7 +2,10 @@ package logic
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/contact/contact"
 	"tikstart/rpc/contact/internal/svc"
 
@@ -26,11 +29,17 @@ func NewGetLatestMessageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 func (l *GetLatestMessageLogic) GetLatestMessage(in *contact.GetLatestMessageRequest) (*contact.GetLatestMessageResponse, error) {
 	result := model.Message{}
 
-	l.svcCtx.Mysql.
+	err := l.svcCtx.Mysql.
 		Where("from_id = ? and to_user_id = ?", in.UserAId, in.UserBId).
 		Or("from_id = ? and to_user_id = ?", in.UserBId, in.UserAId).
 		Order("created_at desc").
-		First(&result)
+		First(&result).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &contact.GetLatestMessageResponse{}, nil
+		}
+		return nil, utils.InternalWithDetails("error getting latest message", err)
+	}
 
 	l.Logger.Info("GetLatestMessage", result)
 
