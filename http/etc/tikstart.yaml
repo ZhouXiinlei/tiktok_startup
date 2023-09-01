@@ -1,7 +1,6 @@
 Name: tikstart
 Host: 0.0.0.0
 Port: 8888
-
 UserRpc:
   Endpoints:
     - 127.0.0.1:8080
