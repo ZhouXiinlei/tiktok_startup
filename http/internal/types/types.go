@@ -95,3 +95,23 @@ type PublishVideoRequest struct {
 type PublishVideoResponse struct {
 	BasicResponse
 }
+
+type FavoriteRequest struct {
+	Token      string `form:"token"`
+	VideoId    int64  `form:"video_id"`
+	ActionType int32  `form:"action_type"`
+}
+
+type FavoriteResponse struct {
+	BasicResponse
+}
+
+type GetFavoriteListRequest struct {
+	Token  string `form:"token"`
+	UserId int64  `form:"user_id"`
+}
+
+type GetFavoriteListResponse struct {
+	BasicResponse
+	VideoList []Video `json:"video_list"`
+}

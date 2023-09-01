@@ -87,4 +87,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		},
 		rest.WithPrefix("/douyin/relation"),
 	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuth},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/action",
+					Handler: video.FavoriteHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/list",
+					Handler: video.GetFavoriteListHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/douyin/favorite"),
+	)
 }
