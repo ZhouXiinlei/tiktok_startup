@@ -95,6 +95,19 @@ type (
 		VideoList []Video `json:"video_list"`
 	}
 )
+
+type (
+	GetFriendListRequest {
+		UserId int64  `form:"user_id"`
+		Token  string `form:"token"`
+	}
+
+	GetFriendListResponse {
+		BasicResponse
+		UserList []int64 `json:"user_list"`
+	}
+)
+
 type (
 	PublishVideoRequest {
 		Title string `form:"title"`
@@ -104,6 +117,28 @@ type (
 		BasicResponse
 	}
 )
+
+type (
+	FavoriteRequest {
+		Token      string `form:"token"`
+		VideoId    int64  `form:"video_id"`
+		ActionType int32  `form:"action_type"`
+	}
+	FavoriteResponse {
+		BasicResponse
+	}
+)
+type (
+	GetFavoriteListRequest {
+		Token  string `form:"token"`
+		UserId int64  `form:"user_id"`
+	}
+	GetFavoriteListResponse {
+		BasicResponse
+		VideoList []Video `json:"video_list"`
+	}
+)
+
 @server(
 	group: app
 )
@@ -158,4 +193,26 @@ service tikstart {
 service tikstart {
 	@handler Follow
 	post /action (FollowRequest) returns (FollowResponse)
+}
+
+@server(
+	group: social
+	prefix: /douyin/relation
+)
+service tikstart {
+	@handler GetFriendList
+	get /friend/list (GetFriendListRequest) returns (GetFriendListResponse)
+}
+
+@server (
+	group: video
+	prefix: /douyin/favorite
+	middleware: JwtAuth
+)
+service tikstart {
+	@handler Favorite
+	post /action (FavoriteRequest) returns (FavoriteResponse)
+
+	@handler GetFavoriteList
+	get /list (GetFavoriteListRequest) returns (GetFavoriteListResponse)
 }
