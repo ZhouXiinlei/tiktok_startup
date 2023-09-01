@@ -6,11 +6,11 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"tikstart/common"
 	"tikstart/common/utils"
-	"tikstart/http/schema"
-	"tikstart/rpc/contact/contact"
-
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
+	"tikstart/http/schema"
+	"tikstart/rpc/contact/contact"
+	"tikstart/rpc/user/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,6 +34,33 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 	res, err := l.svcCtx.ContactRpc.GetFriendsList(l.ctx, &contact.GetFriendsListRequest{
 		UserId: queryId,
 	})
+	var users []types.User
+
+	for _, friendID := range res.FriendsId {
+		userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
+			UserId: friendID,
+		})
+		if err != nil {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42203,
+				Message:    "查询失败",
+			}
+		}
+		users = append(users, types.User{
+			Id:                 userInfo.UserId,
+			Name:               userInfo.Username,
+			FollowCount:        0,
+			FollowerCount:      0,
+			IsFollow:           true,
+			AvatarUrl:          "",
+			BackgroundImageUrl: "",
+			Signature:          "",
+			TotalFavorited:     "",
+			WorkCount:          0,
+			FavoriteCount:      0,
+		})
+	}
 	if err != nil {
 		if st, match := utils.MatchError(err, common.ErrUserNotFound); match {
 			return nil, schema.ApiError{
@@ -62,6 +89,6 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 			StatusCode: 0,
 			StatusMsg:  "",
 		},
-		UserList: res.FriendsId,
+		UserList: users,
 	}, nil
 }

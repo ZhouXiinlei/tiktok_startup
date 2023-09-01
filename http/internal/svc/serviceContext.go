@@ -20,9 +20,10 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:   c,
-		UserRpc:  userClient.NewUser(zrpc.MustNewClient(c.UserRpc)),
-		VideoRpc: videoClient.NewVideo(zrpc.MustNewClient(c.VideoRpc)),
-		JwtAuth:  middleware.NewJwtAuthMiddleware(c).Handle,
+		Config:     c,
+		UserRpc:    userClient.NewUser(zrpc.MustNewClient(c.UserRpc)),
+		VideoRpc:   videoClient.NewVideo(zrpc.MustNewClient(c.VideoRpc)),
+		ContactRpc: contactClient.NewContact(zrpc.MustNewClient(c.ContactRpc)),
+		JwtAuth:    middleware.NewJwtAuthMiddleware(c).Handle,
 	}
 }

@@ -94,7 +94,7 @@ type GetFriendListRequest struct {
 
 type GetFriendListResponse struct {
 	BasicResponse
-	UserList []int64 `json:"user_list"`
+	UserList []User `json:"user_list"`
 }
 
 type PublishVideoRequest struct {
