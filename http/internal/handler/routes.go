@@ -137,4 +137,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		),
 		rest.WithPrefix("/douyin"),
 	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuth},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/comment/action",
+					Handler: video.CommentVideoHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/comment/list",
+					Handler: video.GetCommentListHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/douyin"),
+	)
 }

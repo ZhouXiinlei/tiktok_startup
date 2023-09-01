@@ -8,7 +8,6 @@ import (
 	"tikstart/common/utils"
 	"tikstart/http/schema"
 	"tikstart/rpc/contact/contact"
-	"tikstart/rpc/user/user"
 
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"

@@ -155,3 +155,33 @@ type MessageActionRequest struct {
 type MessageActionResponse struct {
 	BasicResponse
 }
+
+type Comment struct {
+	Id         int64  `json:"id"`
+	User       User   `json:"user"`
+	Content    string `json:"content"`
+	CreateDate string `json:"create_date"`
+}
+
+type CommentRequest struct {
+	Token       string `form:"token"`
+	VideoId     int64  `form:"video_id"`
+	ActionType  int32  `form:"action_type"`
+	CommentText string `form:"comment_text,optional"`
+	CommentId   int64  `form:"comment_id,optional"`
+}
+
+type CommentResponse struct {
+	BasicResponse
+	Comment Comment `json:"comment"`
+}
+
+type GetCommentListRequest struct {
+	Token   string `form:"token"`
+	VideoId int64  `form:"video_id"`
+}
+
+type GetCommentListResponse struct {
+	BasicResponse
+	CommentList []Comment `json:"comment_list"`
+}

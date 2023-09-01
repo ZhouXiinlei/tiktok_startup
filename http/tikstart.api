@@ -257,3 +257,44 @@ service tikstart {
 	@handler Action
 	post /message/action (MessageActionRequest) returns (MessageActionResponse)
 }
+
+type (
+	Comment {
+		Id         int64  `json:"id"`
+		User       User   `json:"user"`
+		Content    string `json:"content"`
+		CreateDate string `json:"create_date"`
+	}
+	CommentRequest {
+		Token       string `form:"token"`
+		VideoId     int64  `form:"video_id"`
+		ActionType  int32  `form:"action_type"`
+		CommentText string `form:"comment_text,optional"`
+		CommentId   int64  `form:"comment_id,optional"`
+	}
+	CommentResponse {
+		BasicResponse
+		Comment Comment `json:"comment"`
+	}
+	GetCommentListRequest {
+		Token   string `form:"token"`
+		VideoId int64  `form:"video_id"`
+	}
+	GetCommentListResponse {
+		BasicResponse
+		CommentList []Comment `json:"comment_list"`
+	}
+)
+
+@server (
+	group: video
+	prefix: /douyin
+	middleware: JwtAuth
+)
+service tikstart {
+	@handler CommentVideo
+	post /comment/action (CommentRequest) returns (CommentResponse)
+
+	@handler GetCommentList
+	get /comment/list (GetCommentListRequest) returns (GetCommentListResponse)
+}
