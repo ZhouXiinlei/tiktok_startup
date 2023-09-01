@@ -95,6 +95,19 @@ type (
 		VideoList []Video `json:"video_list"`
 	}
 )
+
+type (
+	GetFriendListRequest {
+		UserId int64  `form:"user_id"`
+		Token  string `form:"token"`
+	}
+
+	GetFriendListResponse {
+		BasicResponse
+		UserList []int64 `json:"user_list"`
+	}
+)
+
 type (
 	PublishVideoRequest {
 		Title string `form:"title"`
@@ -104,6 +117,7 @@ type (
 		BasicResponse
 	}
 )
+
 @server(
 	group: app
 )
@@ -158,4 +172,13 @@ service tikstart {
 service tikstart {
 	@handler Follow
 	post /action (FollowRequest) returns (FollowResponse)
+}
+
+@server(
+	group: social
+	prefix: /douyin/relation
+)
+service tikstart {
+	@handler GetFriendList
+	get /friend/list (GetFriendListRequest) returns (GetFriendListResponse)
 }
