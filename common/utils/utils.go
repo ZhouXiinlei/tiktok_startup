@@ -23,22 +23,26 @@ func MatchRegexp(pattern string, value string) bool {
 }
 
 func InternalWithDetails(msg string, items ...interface{}) error {
+	fmt.Printf("InternalError: %s\n", msg)
 	details := make([]proto.Message, 0, len(items))
-	for _, item := range items {
+	for index, item := range items {
 		switch v := item.(type) {
 		case error:
 			details = append(details, &any.Any{
 				Value: []byte(v.Error()),
 			})
+			fmt.Printf("%d: %v\n", index, v.Error())
 		case string:
 			details = append(details, &any.Any{
 				Value: []byte(v),
 			})
+			fmt.Printf("%d: %v\n", index, v)
 		default:
 			// try fmt.Sprintf to stringify this item
 			details = append(details, &any.Any{
 				Value: []byte(fmt.Sprintf("%v", v)),
 			})
+			fmt.Printf("%d: %v\n", index, v)
 		}
 	}
 	st, _ := status.New(codes.Internal, msg).WithDetails(details...)

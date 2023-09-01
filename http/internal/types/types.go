@@ -87,6 +87,17 @@ type GetVideoListResponse struct {
 	VideoList []Video `json:"video_list"`
 }
 
+
+type GetFriendListRequest struct {
+	UserId int64  `form:"user_id"`
+	Token  string `form:"token"`
+}
+
+type GetFriendListResponse struct {
+	BasicResponse
+	UserList []int64 `json:"user_list"`
+}
+
 type PublishVideoRequest struct {
 	Title string `form:"title"`
 	Token string `form:"token"`
