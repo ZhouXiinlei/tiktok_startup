@@ -24,14 +24,20 @@ func NewGetFollowerListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 }
 
 func (l *GetFollowerListLogic) GetFollowerList(in *user.GetFollowerListRequest) (*user.GetFollowerListResponse, error) {
-	userPreload := &model.User{}
-	err := l.svcCtx.DB.Where("user_id = ?", in.UserId).Preload("Followers").Find(&userPreload).Error
+	userList := make([]*model.User, 0)
+	err := l.svcCtx.DB.
+		Where("user_id in (?)", l.svcCtx.DB.
+			Model(&model.Follow{}).
+			Select("follower_id").
+			Where("followed_id = ?", in.UserId)).
+		Find(&userList).
+		Error
 	if err != nil {
 		return nil, utils.InternalWithDetails("error querying follower list", err)
 	}
 
-	followerList := make([]*user.UserInfo, 0, len(userPreload.Followers))
-	for _, follower := range userPreload.Followers {
+	followerList := make([]*user.UserInfo, 0, len(userList))
+	for _, follower := range userList {
 		var count int64
 		err := l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.UserId, follower.UserId).Count(&count).Error
 		if err != nil {

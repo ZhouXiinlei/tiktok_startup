@@ -26,14 +26,20 @@ func NewGetFollowingListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *GetFollowingListLogic) GetFollowingList(in *user.GetFollowingListRequest) (*user.GetFollowingListResponse, error) {
-	userPreload := &model.User{}
-	err := l.svcCtx.DB.Where("user_id = ?", in.UserId).Preload("Following").Find(&userPreload).Error
+	userList := make([]*model.User, 0)
+	err := l.svcCtx.DB.
+		Where("user_id in (?)", l.svcCtx.DB.
+			Model(&model.Follow{}).
+			Select("followed_id").
+			Where("follower_id = ?", in.UserId)).
+		Find(&userList).
+		Error
 	if err != nil {
 		return nil, utils.InternalWithDetails("error querying following list", err)
 	}
 
-	followingList := make([]*user.UserInfo, 0, len(userPreload.Following))
-	for _, followed := range userPreload.Following {
+	followingList := make([]*user.UserInfo, 0, len(userList))
+	for _, followed := range userList {
 		followingList = append(followingList, &user.UserInfo{
 			UserId:         followed.UserId,
 			Username:       followed.Username,
@@ -47,6 +53,4 @@ func (l *GetFollowingListLogic) GetFollowingList(in *user.GetFollowingListReques
 	return &user.GetFollowingListResponse{
 		FollowingList: followingList,
 	}, nil
-
-	return &user.GetFollowingListResponse{}, nil
 }
