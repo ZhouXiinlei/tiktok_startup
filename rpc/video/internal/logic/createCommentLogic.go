@@ -34,7 +34,7 @@ func (l *CreateCommentLogic) CreateComment(in *video.CreateCommentRequest) (*vid
 		Content: in.Content,
 	}
 
-	err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
+	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&comment).Error; err != nil {
 			return utils.InternalWithDetails("error creating comment", err)
 		}

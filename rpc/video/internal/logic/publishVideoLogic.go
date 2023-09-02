@@ -30,7 +30,7 @@ func (l *PublishVideoLogic) PublishVideo(in *video.PublishVideoRequest) (*video.
 		PlayUrl:  in.Video.PlayUrl,
 		CoverUrl: in.Video.CoverUrl,
 	}
-	if err := l.svcCtx.Mysql.Create(newVideo).Error; err != nil {
+	if err := l.svcCtx.DB.Create(newVideo).Error; err != nil {
 		return nil, status.Error(1000, err.Error())
 	}
 	return &video.Empty{}, nil

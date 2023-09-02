@@ -30,7 +30,7 @@ func NewGetCommentByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 
 func (l *GetCommentByIdLogic) GetCommentById(in *video.GetCommentByIdRequest) (*video.GetCommentByIdResponse, error) {
 	var comment model.Comment
-	err := l.svcCtx.Mysql.Where("comment_id = ?", in.CommentId).First(&comment).Error
+	err := l.svcCtx.DB.Where("comment_id = ?", in.CommentId).First(&comment).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, common.ErrCommentNotFound.Err()

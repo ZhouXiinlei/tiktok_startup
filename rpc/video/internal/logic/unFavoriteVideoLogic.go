@@ -26,7 +26,7 @@ func NewUnFavoriteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 }
 
 func (l *UnFavoriteVideoLogic) UnFavoriteVideo(in *video.UnFavoriteVideoRequest) (*video.Empty, error) {
-	err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
+	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		res := tx.Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).Delete(&model.Favorite{})
 		if err := res.Error; err != nil {
 			return utils.InternalWithDetails("error deleting favorite record", err)

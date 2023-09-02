@@ -25,7 +25,7 @@ func NewGetCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 
 func (l *GetCommentListLogic) GetCommentList(in *video.GetCommentListRequest) (*video.GetCommentListResponse, error) {
 	var comments []*model.Comment
-	if err := l.svcCtx.Mysql.
+	if err := l.svcCtx.DB.
 		Where("video_id = ?", in.VideoId).
 		Order("created_at").
 		Find(&comments).Error; err != nil {

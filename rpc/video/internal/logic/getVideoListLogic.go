@@ -27,7 +27,7 @@ func NewGetVideoListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetV
 
 func (l *GetVideoListLogic) GetVideoList(in *video.GetVideoListRequest) (*video.GetVideoListResponse, error) {
 	var videos []model.Video
-	err := l.svcCtx.Mysql.
+	err := l.svcCtx.DB.
 		Where("created_at < ?", time.Unix(in.LatestTime, 0)).
 		Order("created_at desc").
 		Limit(int(in.Num)).

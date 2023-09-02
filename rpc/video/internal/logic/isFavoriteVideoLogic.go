@@ -25,7 +25,7 @@ func NewIsFavoriteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 
 func (l *IsFavoriteVideoLogic) IsFavoriteVideo(in *video.IsFavoriteVideoRequest) (*video.IsFavoriteVideoResponse, error) {
 	var count int64
-	err := l.svcCtx.Mysql.
+	err := l.svcCtx.DB.
 		Model(&model.Favorite{}).
 		Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).
 		Count(&count).

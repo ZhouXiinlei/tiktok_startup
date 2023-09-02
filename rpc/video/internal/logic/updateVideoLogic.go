@@ -26,7 +26,7 @@ func NewUpdateVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Updat
 
 func (l *UpdateVideoLogic) UpdateVideo(in *video.UpdateVideoRequest) (*video.Empty, error) {
 
-	db := l.svcCtx.Mysql
+	db := l.svcCtx.DB
 	err := db.Transaction(func(tx *gorm.DB) error {
 		var newVideo model.Video
 		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", in.Video.Id).First(&newVideo).Error

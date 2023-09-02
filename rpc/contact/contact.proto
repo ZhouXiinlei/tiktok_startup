@@ -9,7 +9,7 @@ message Empty {}
 
 // 消息结构体
 message Message {
-  int64 Id = 1;
+  int64 MessageId = 1;
   string Content = 2;
   int64 CreateTime = 3;
   int64 FromId = 4;
@@ -37,7 +37,7 @@ message GetLatestMessageResponse {
 message CreateMessageRequest {
   int64 FromId = 1;
   int64 ToId = 2;
-  string content = 3;
+  string Content = 3;
 }
 
 message GetMessageListRequest {

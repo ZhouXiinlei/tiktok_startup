@@ -30,7 +30,7 @@ func NewDeleteCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 }
 
 func (l *DeleteCommentLogic) DeleteComment(in *video.DeleteCommentRequest) (*video.Empty, error) {
-	if err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
+	if err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		var comment model.Comment
 		// MySQL doesn't support returning feature, so we must select the comment first
 		err := tx.

@@ -2,15 +2,13 @@ package message
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/status"
 	"strconv"
 	"tikstart/common/utils"
-	"tikstart/rpc/contact/contact"
-
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"tikstart/rpc/contact/contact"
 )
 
 type ChatLogic struct {
@@ -43,7 +41,7 @@ func (l *ChatLogic) Chat(req *types.MessageChatRequest) (resp *types.MessageChat
 	messageList := make([]types.Message, 0, len(res.Messages))
 	for _, message := range res.Messages {
 		messageList = append(messageList, types.Message{
-			Id:         message.Id,
+			Id:         message.MessageId,
 			ToUserId:   message.ToId,
 			FromUserId: message.FromId,
 			Content:    message.Content,

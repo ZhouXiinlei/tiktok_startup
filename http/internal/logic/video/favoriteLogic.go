@@ -2,6 +2,9 @@ package video
 
 import (
 	"context"
+	"google.golang.org/grpc/status"
+	"tikstart/common"
+	"tikstart/http/schema"
 
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
@@ -31,33 +34,38 @@ func NewFavoriteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Favorite
 }
 
 func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.FavoriteResponse, err error) {
-	logx.WithContext(l.ctx).Infof("收藏视频: %v", req)
+	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	userClaims, err := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
-	if err != nil {
-		return nil, err
-	}
-
-	if req.ActionType == Favorite {
+	switch req.ActionType {
+	case Favorite:
 		if _, err = l.svcCtx.VideoRpc.FavoriteVideo(l.ctx, &videoClient.FavoriteVideoRequest{
 			UserId:  userClaims.UserId,
 			VideoId: req.VideoId,
 		}); err != nil {
-			logx.WithContext(l.ctx).Errorf("收藏视频失败: %v", err)
-			return nil, err
+			if st, match := utils.MatchError(err, common.ErrVideoNotFound); match {
+				return nil, schema.ApiError{
+					StatusCode: 422,
+					Code:       42204,
+					Message:    "视频不存在",
+				}
+			} else {
+				return nil, utils.ReturnInternalError(st, err)
+			}
 		}
-
-	} else if req.ActionType == UnFavorite {
+	case UnFavorite:
 		if _, err = l.svcCtx.VideoRpc.UnFavoriteVideo(l.ctx, &videoClient.UnFavoriteVideoRequest{
 			UserId:  userClaims.UserId,
 			VideoId: req.VideoId,
 		}); err != nil {
-			logx.WithContext(l.ctx).Errorf("收藏视频失败: %v", err)
-			return nil, err
+			st, _ := status.FromError(err)
+			return nil, utils.ReturnInternalError(st, err)
 		}
-
-	} else {
-		return nil, err
+	default:
+		return nil, schema.ApiError{
+			StatusCode: 422,
+			Code:       42205,
+			Message:    "未知操作",
+		}
 	}
 
 	return &types.FavoriteResponse{
@@ -66,5 +74,4 @@ func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.Favori
 			StatusMsg:  "Success",
 		},
 	}, nil
-
 }

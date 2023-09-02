@@ -5,6 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
@@ -26,9 +27,18 @@ func NewFavoriteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Fav
 }
 
 func (l *FavoriteVideoLogic) FavoriteVideo(in *video.FavoriteVideoRequest) (*video.Empty, error) {
-	err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
+	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		var count int64
-		err := tx.
+		err := tx.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Count(&count).Error
+		if err != nil {
+			return utils.InternalWithDetails("error querying video record", err)
+		}
+		if count == 0 {
+			return common.ErrVideoNotFound.Err()
+		}
+
+		count = 0
+		err = tx.
 			Model(&model.Favorite{}).
 			Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).
 			Count(&count).

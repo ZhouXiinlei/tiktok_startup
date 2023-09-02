@@ -26,7 +26,7 @@ func NewGetVideoListByAuthorLogic(ctx context.Context, svcCtx *svc.ServiceContex
 
 func (l *GetVideoListByAuthorLogic) GetVideoListByAuthor(in *video.GetVideoListByAuthorRequest) (*video.GetVideoListByAuthorResponse, error) {
 	var videos []model.Video
-	err := l.svcCtx.Mysql.
+	err := l.svcCtx.DB.
 		Where("author_id = ?", in.AuthorId).
 		Order("created_at desc").
 		Find(&videos).

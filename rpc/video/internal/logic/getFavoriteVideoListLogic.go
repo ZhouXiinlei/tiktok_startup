@@ -26,7 +26,7 @@ func NewGetFavoriteVideoListLogic(ctx context.Context, svcCtx *svc.ServiceContex
 func (l *GetFavoriteVideoListLogic) GetFavoriteVideoList(in *video.GetFavoriteVideoListRequest) (*video.GetFavoriteVideoListResponse, error) {
 	var favoriteVideoList []*model.Favorite
 
-	if err := l.svcCtx.Mysql.
+	if err := l.svcCtx.DB.
 		Where("user_id = ?", in.UserId).
 		Preload("Video").
 		Order("created_at desc").

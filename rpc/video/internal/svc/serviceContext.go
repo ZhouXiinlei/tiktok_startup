@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"tikstart/common/model"
 	"tikstart/rpc/video/internal/config"
@@ -11,28 +12,16 @@ import (
 
 type ServiceContext struct {
 	Config config.Config
-	Mysql  *gorm.DB
+	DB     *gorm.DB
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	return &ServiceContext{
-		Config: c,
-		Mysql:  initMysql(c),
-	}
-}
-func initMysql(c config.Config) *gorm.DB {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		c.Mysql.Username,
-		c.Mysql.Password,
-		c.Mysql.Address,
-		c.Mysql.DBName,
-	)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(getDSN(&c)), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   c.Mysql.TablePrefix, // 表名前缀
-			SingularTable: true,                // 使用单数表名
+			TablePrefix:   c.MySQL.TablePrefix, // 表明前缀，可不设置
+			SingularTable: true,                // 使用单数表名，即不会在表名后添加复数s
 		},
-		DisableForeignKeyConstraintWhenMigrating: true,
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		panic(err)
@@ -41,5 +30,19 @@ func initMysql(c config.Config) *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
-	return db
+
+	return &ServiceContext{
+		Config: c,
+		DB:     db,
+	}
+}
+
+func getDSN(c *config.Config) string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		c.MySQL.User,
+		c.MySQL.Password,
+		c.MySQL.Host,
+		c.MySQL.Port,
+		c.MySQL.Database,
+	)
 }
