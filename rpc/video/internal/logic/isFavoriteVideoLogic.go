@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
-	"gorm.io/gorm"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -24,10 +24,17 @@ func NewIsFavoriteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 }
 
 func (l *IsFavoriteVideoLogic) IsFavoriteVideo(in *video.IsFavoriteVideoRequest) (*video.IsFavoriteVideoResponse, error) {
-	// todo: add your logic here and delete this line
-	db := l.svcCtx.Mysql
-	err := db.Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).First(&model.Favorite{}).Error
-	if err == gorm.ErrRecordNotFound {
+	var count int64
+	err := l.svcCtx.Mysql.
+		Model(&model.Favorite{}).
+		Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).
+		Count(&count).
+		Error
+	if err != nil {
+		return nil, utils.InternalWithDetails("error querying favorite count", err)
+	}
+
+	if count == 0 {
 		return &video.IsFavoriteVideoResponse{
 			IsFavorite: false,
 		}, nil

@@ -6,4 +6,4 @@ Mysql:
   Username: root
   Password: "SXFsvsxegJ4PtI84MR"
   DBName: tiktok_startup
-  TablePrefix: ""
+  TablePrefix: "dev_"

@@ -1,41 +1,50 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type Video struct {
-	gorm.Model
+	VideoId       int64  `gorm:"not null;primaryKey"`
 	AuthorId      int64  `gorm:"not null;index"`
 	Title         string `gorm:"not null;index"`
 	PlayUrl       string `gorm:"not null"`
 	CoverUrl      string `gorm:"not null"`
-	FavoriteCount int64  `gorm:"column:favorite_count;"`
+	FavoriteCount int64
 	CommentCount  int64
 
 	// has many
-	Comments  []Comment
-	Favorites []Favorite
-}
+	Comments  []Comment  `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Favorites []Favorite `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
-const (
-	PopularVideoStandard = 1000 // 拥有超过 1000 个赞或 1000 个评论的视频成为热门视频，有特殊处理
-)
+	Author User `gorm:"foreignKey:AuthorId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
-func IsPopularVideo(favoriteCount, commentCount int64) bool {
-	return favoriteCount >= PopularVideoStandard || commentCount >= PopularVideoStandard
+	CreatedAt time.Time `gorm:"not null"`
+	UpdatedAt time.Time `gorm:"not null"`
+	DeletedAt gorm.DeletedAt
 }
 
 type Comment struct {
-	gorm.Model
-	UserId  int64
-	VideoId int64
-	Content string `gorm:"not null"`
+	CommentId int64  `gorm:"not null;primaryKey"`
+	UserId    int64  `gorm:"not null;index"`
+	VideoId   int64  `gorm:"not null;index"`
+	Content   string `gorm:"not null"`
+
+	CreatedAt time.Time `gorm:"not null"`
+	UpdatedAt time.Time `gorm:"not null"`
+	DeletedAt gorm.DeletedAt
 }
 
 type Favorite struct {
-	gorm.Model
-	UserId  int64 `gorm:"column:user_id;"`
-	VideoId int64 `gorm:"column:video_id;"`
+	FavoriteId int64 `gorm:"not null;primaryKey"`
+	UserId     int64 `gorm:"not null"`
+	VideoId    int64 `gorm:"not null"`
 
-	// belongs to
-	Video Video
+	User  User  `gorm:"foreignKey:UserId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Video Video `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
+	CreatedAt time.Time `gorm:"not null"`
+	UpdatedAt time.Time `gorm:"not null"`
+	DeletedAt gorm.DeletedAt
 }

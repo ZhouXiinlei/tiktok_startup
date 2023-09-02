@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -25,26 +26,23 @@ func NewUnFavoriteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 }
 
 func (l *UnFavoriteVideoLogic) UnFavoriteVideo(in *video.UnFavoriteVideoRequest) (*video.Empty, error) {
-
 	err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
-		NewFavorite := model.Favorite{}
-		err := tx.Clauses(clause.
-			Locking{Strength: "UPDATE"}).Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).
-			First(&NewFavorite).
-			Error
-		if err == gorm.ErrRecordNotFound {
+		res := tx.Where("user_id = ? AND video_id = ?", in.UserId, in.VideoId).Delete(&model.Favorite{})
+		if err := res.Error; err != nil {
+			return utils.InternalWithDetails("error deleting favorite record", err)
+		}
+		if res.RowsAffected == 0 {
 			return nil
 		}
+
+		err := tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Model(&model.Video{}).
+			Where("video_id = ?", in.VideoId).
+			Update("favorite_count", gorm.Expr("favorite_count - ?", 1)).
+			Error
 		if err != nil {
-			return err
-		}
-		err = tx.Where("user_id = ? And video_id = ?", in.UserId, in.VideoId).Delete(&NewFavorite).Error
-		if err != nil {
-			return err
-		}
-		err = tx.Model(&model.Video{}).Where("id = ?", in.VideoId).Update("favorite_count", gorm.Expr("favorite_count - ?", 1)).Error
-		if err != nil {
-			return err
+			return utils.InternalWithDetails("error reducing favorite_count", err)
 		}
 		return nil
 	})

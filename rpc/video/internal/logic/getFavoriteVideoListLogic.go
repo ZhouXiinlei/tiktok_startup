@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -29,17 +30,15 @@ func (l *GetFavoriteVideoListLogic) GetFavoriteVideoList(in *video.GetFavoriteVi
 		Where("user_id = ?", in.UserId).
 		Preload("Video").
 		Order("created_at desc").
-		Find(&favoriteVideoList).Error; err != nil {
-		return nil, err
+		Find(&favoriteVideoList).
+		Error; err != nil {
+		return nil, utils.InternalWithDetails("error querying favorite video list", err)
 	}
 
 	videoList := make([]*video.VideoInfo, 0, len(favoriteVideoList))
 	for _, v := range favoriteVideoList {
-		if v.Video.ID == 0 {
-			continue
-		}
 		videoInfo := &video.VideoInfo{
-			Id:            int64(v.Video.ID),
+			Id:            v.Video.VideoId,
 			AuthorId:      v.Video.AuthorId,
 			Title:         v.Video.Title,
 			PlayUrl:       v.Video.PlayUrl,
