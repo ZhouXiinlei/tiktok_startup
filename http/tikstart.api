@@ -139,7 +139,16 @@ type (
 		VideoList []Video `json:"video_list"`
 	}
 )
-
+type (
+	PublishedListRequest {
+		Token  string `form:"token"`
+		UserId int64  `form:"user_id"`
+	}
+	PublishedListResponse {
+		BasicResponse
+		VideoList []Video `json:"video_list"`
+	}
+)
 @server(
 	group: app
 )
@@ -163,6 +172,8 @@ service tikstart {
 service tikstart {
 	@handler PublishVideo // 发布视频
 	post /douyin/publish/action (PublishVideoRequest) returns (PublishVideoResponse)
+	@handler PublishedList
+	get /douyin/publish/list (PublishedListRequest) returns (PublishedListResponse)
 }
 
 @server(

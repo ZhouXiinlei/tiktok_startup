@@ -3,9 +3,6 @@ package video
 import (
 	"bytes"
 	"context"
-	"github.com/google/uuid"
-	"github.com/h2non/filetype"
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,6 +13,10 @@ import (
 	"tikstart/http/internal/types"
 	"tikstart/http/schema"
 	rpcvideo "tikstart/rpc/video/video"
+
+	"github.com/google/uuid"
+	"github.com/h2non/filetype"
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -102,7 +103,7 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			})
 			return
 		}
-		Url.Path = "/" + Keyname
+		Url.Path = Keyname
 		VideoUrl := Url.String()
 
 		_, err = svcCtx.VideoRpc.PublishVideo(r.Context(), &rpcvideo.PublishVideoRequest{
