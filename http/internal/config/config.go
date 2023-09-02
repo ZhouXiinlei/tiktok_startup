@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
+	"tikstart/common/tikcos"
 )
 
 type Config struct {
@@ -14,4 +15,5 @@ type Config struct {
 		Secret string
 		Expire int64
 	}
+	COS tikcos.TengxunyunCfg
 }
