@@ -5,11 +5,12 @@ import (
 	"tikstart/common/utils"
 	"tikstart/http/schema"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
 	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/videoClient"
+
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type PublishedListLogic struct {
@@ -27,7 +28,6 @@ func NewPublishedListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 }
 
 func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (resp *types.PublishedListResponse, err error) {
-	// todo: add your logic here and delete this line
 	Userclaims, err := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
 	publishedList, err := l.svcCtx.VideoRpc.GetVideoListByAuthor(l.ctx, &videoClient.GetVideoListByAuthorRequest{
