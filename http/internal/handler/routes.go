@@ -156,4 +156,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		),
 		rest.WithPrefix("/douyin"),
 	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuth},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/follow/list",
+					Handler: social.GetFollowListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/follower/list",
+					Handler: social.GetFollowerListHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/douyin/relation"),
+	)
 }

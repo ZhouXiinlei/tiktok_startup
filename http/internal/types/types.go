@@ -185,3 +185,23 @@ type GetCommentListResponse struct {
 	BasicResponse
 	CommentList []Comment `json:"comment_list"`
 }
+
+type GetFollowListRequest struct {
+	Token  string `form:"token"`
+	UserId int64  `form:"user_id"`
+}
+
+type GetFollowListResponse struct {
+	BasicResponse
+	UserList []User `json:"user_list"`
+}
+
+type GetFollowerListRequest struct {
+	Token  string `form:"token"`
+	UserId int64  `form:"user_id"`
+}
+
+type GetFollowerListResponse struct {
+	BasicResponse
+	UserList []User `json:"user_list"`
+}

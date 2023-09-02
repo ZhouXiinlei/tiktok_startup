@@ -299,3 +299,35 @@ service tikstart {
 	@handler GetCommentList
 	get /comment/list (GetCommentListRequest) returns (GetCommentListResponse)
 }
+
+type (
+	GetFollowListRequest {
+		Token  string `form:"token"`
+		UserId int64  `form:"user_id"`
+	}
+	GetFollowListResponse {
+		BasicResponse
+		UserList []User `json:"user_list"`
+	}
+	GetFollowerListRequest {
+		Token  string `form:"token"`
+		UserId int64  `form:"user_id"`
+	}
+	GetFollowerListResponse {
+		BasicResponse
+		UserList []User `json:"user_list"`
+	}
+)
+
+@server (
+	group: social
+	prefix: /douyin/relation
+	middleware: JwtAuth
+)
+service tikstart {
+	@handler GetFollowList
+	get /follow/list (GetFollowListRequest) returns (GetFollowListResponse)
+
+	@handler GetFollowerList
+	get /follower/list (GetFollowerListRequest) returns (GetFollowerListResponse)
+}
