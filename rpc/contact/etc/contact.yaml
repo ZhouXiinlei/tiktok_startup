@@ -1,6 +1,7 @@
 Name: contact.rpc
 ListenOn: 0.0.0.0:8082
 Mode: dev
+Timeout : 100000
 Mysql:
   Address: ts.dn11.top:33066
   Username: root

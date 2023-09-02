@@ -2,13 +2,14 @@ package video
 
 import (
 	"bytes"
+	"context"
 	"github.com/google/uuid"
 	"github.com/h2non/filetype"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"io"
 	"net/http"
+	"net/url"
 	"path/filepath"
-	"tikstart/common/tikcos"
 	"tikstart/common/utils"
 	"tikstart/http/internal/logic/video"
 	"tikstart/http/internal/svc"
@@ -24,21 +25,8 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		//token := r.Body.
-		//fmt.Println(req.Token)
-		UserClaims, err := utils.ParseToken(req.Token, svcCtx.Config.JwtAuth.Secret)
-		UserId := UserClaims.UserId
-		if err != nil {
-			httpx.Error(w, schema.ServerError{
-				ApiError: schema.ApiError{
-					StatusCode: 401,
-					Code:       40102,
-					Message:    "无效的Token",
-				},
-				Detail: err,
-			})
-			return
-		}
+		Userclaims, _ := utils.ParseToken(req.Token, svcCtx.Config.JwtAuth.Secret)
+		UserId := Userclaims.UserId
 		file, fileHeader, err := r.FormFile("data")
 		if err != nil {
 			httpx.Error(w, schema.ServerError{
@@ -63,6 +51,7 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			})
 			return
 		}
+		defer tmpFile.Close()
 		buf := bytes.NewBuffer(nil)
 		if _, err := io.Copy(buf, tmpFile); err != nil {
 			httpx.Error(w, schema.ServerError{
@@ -79,48 +68,43 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.Error(w, schema.ServerError{
 				ApiError: schema.ApiError{
 					StatusCode: 400,
-					Code:       40005,
-					Message:    "文件上传失败",
+					Code:       40006,
+					Message:    "无效的文件类型",
 				},
 				Detail: err,
 			})
 			return
 		}
-		if err = tmpFile.Close(); err != nil {
-			httpx.Error(w, schema.ServerError{
-				ApiError: schema.ApiError{
-					StatusCode: 400,
-					Code:       40005,
-					Message:    "文件上传失败",
-				},
-				Detail: err,
-			})
-			return
-		}
+
 		fileName := uuid.New().String() + filepath.Ext(fileHeader.Filename)
-		ok, err := tikcos.UploadVideoToCos(svcCtx.TengxunyunClient, fileName, file)
+		Keyname := "/video/" + fileName
+		_, err = svcCtx.TengxunyunClient.Object.Put(context.Background(), Keyname, file, nil)
 		if err != nil {
 			httpx.Error(w, schema.ServerError{
 				ApiError: schema.ApiError{
-					StatusCode: 400,
-					Code:       40006,
+					StatusCode: 500,
+					Code:       50010,
 					Message:    "文件上传cos失败",
 				},
 				Detail: err,
 			})
 			return
-		} else if !ok {
+		}
+		Url, err := url.Parse(svcCtx.Config.COS.Endpoint)
+		if err != nil {
 			httpx.Error(w, schema.ServerError{
 				ApiError: schema.ApiError{
-					StatusCode: 400,
-					Code:       40007,
-					Message:    "文件上传COS失败",
+					StatusCode: 500,
+					Code:       50011,
+					Message:    "获取视频链接失败",
 				},
 				Detail: err,
 			})
 			return
 		}
-		VideoUrl := "https://" + svcCtx.Config.COS.Endpoint + "/" + fileName
+		Url.Path = "/" + Keyname
+		VideoUrl := Url.String()
+
 		_, err = svcCtx.VideoRpc.PublishVideo(r.Context(), &rpcvideo.PublishVideoRequest{
 			Video: &rpcvideo.VideoInfo{
 				AuthorId: UserId,
