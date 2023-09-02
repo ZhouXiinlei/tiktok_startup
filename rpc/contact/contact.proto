@@ -43,6 +43,7 @@ message CreateMessageRequest {
 message GetMessageListRequest {
   int64 FromId = 1;
   int64 ToId = 2;
+  int64 PreMsgTime = 3;
 }
 
 message GetMessageListResponse {

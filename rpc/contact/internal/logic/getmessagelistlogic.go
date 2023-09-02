@@ -5,6 +5,7 @@ import (
 	"tikstart/common/model"
 	"tikstart/rpc/contact/contact"
 	"tikstart/rpc/contact/internal/svc"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +26,7 @@ func NewGetMessageListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 
 func (l *GetMessageListLogic) GetMessageList(in *contact.GetMessageListRequest) (*contact.GetMessageListResponse, error) {
 	var messages []model.Message
-	err := l.svcCtx.Mysql.Where("from_id = ?", in.FromId).Where("to_user_id = ?", in.ToId).Find(&messages).Error
+	err := l.svcCtx.Mysql.Where("from_id = ? AND to_user_id = ? AND created_at > ?", in.FromId, in.ToId, time.Unix(in.PreMsgTime, 0)).Find(&messages).Error
 	if err != nil {
 		return nil, err
 	}

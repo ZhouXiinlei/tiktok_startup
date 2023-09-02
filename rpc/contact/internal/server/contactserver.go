@@ -5,14 +5,15 @@ package server
 
 import (
 	"context"
-	contact2 "tikstart/rpc/contact/contact"
-	logic2 "tikstart/rpc/contact/internal/logic"
+
+	"tikstart/rpc/contact/contact"
+	"tikstart/rpc/contact/internal/logic"
 	"tikstart/rpc/contact/internal/svc"
 )
 
 type ContactServer struct {
 	svcCtx *svc.ServiceContext
-	contact2.UnimplementedContactServer
+	contact.UnimplementedContactServer
 }
 
 func NewContactServer(svcCtx *svc.ServiceContext) *ContactServer {
@@ -21,32 +22,32 @@ func NewContactServer(svcCtx *svc.ServiceContext) *ContactServer {
 	}
 }
 
-func (s *ContactServer) CreateMessage(ctx context.Context, in *contact2.CreateMessageRequest) (*contact2.Empty, error) {
-	l := logic2.NewCreateMessageLogic(ctx, s.svcCtx)
+func (s *ContactServer) CreateMessage(ctx context.Context, in *contact.CreateMessageRequest) (*contact.Empty, error) {
+	l := logic.NewCreateMessageLogic(ctx, s.svcCtx)
 	return l.CreateMessage(in)
 }
 
-func (s *ContactServer) GetLatestMessage(ctx context.Context, in *contact2.GetLatestMessageRequest) (*contact2.GetLatestMessageResponse, error) {
-	l := logic2.NewGetLatestMessageLogic(ctx, s.svcCtx)
+func (s *ContactServer) GetLatestMessage(ctx context.Context, in *contact.GetLatestMessageRequest) (*contact.GetLatestMessageResponse, error) {
+	l := logic.NewGetLatestMessageLogic(ctx, s.svcCtx)
 	return l.GetLatestMessage(in)
 }
 
-func (s *ContactServer) GetMessageList(ctx context.Context, in *contact2.GetMessageListRequest) (*contact2.GetMessageListResponse, error) {
-	l := logic2.NewGetMessageListLogic(ctx, s.svcCtx)
+func (s *ContactServer) GetMessageList(ctx context.Context, in *contact.GetMessageListRequest) (*contact.GetMessageListResponse, error) {
+	l := logic.NewGetMessageListLogic(ctx, s.svcCtx)
 	return l.GetMessageList(in)
 }
 
-func (s *ContactServer) MakeFriends(ctx context.Context, in *contact2.MakeFriendsRequest) (*contact2.Empty, error) {
-	l := logic2.NewMakeFriendsLogic(ctx, s.svcCtx)
+func (s *ContactServer) MakeFriends(ctx context.Context, in *contact.MakeFriendsRequest) (*contact.Empty, error) {
+	l := logic.NewMakeFriendsLogic(ctx, s.svcCtx)
 	return l.MakeFriends(in)
 }
 
-func (s *ContactServer) LoseFriends(ctx context.Context, in *contact2.LoseFriendsRequest) (*contact2.Empty, error) {
-	l := logic2.NewLoseFriendsLogic(ctx, s.svcCtx)
+func (s *ContactServer) LoseFriends(ctx context.Context, in *contact.LoseFriendsRequest) (*contact.Empty, error) {
+	l := logic.NewLoseFriendsLogic(ctx, s.svcCtx)
 	return l.LoseFriends(in)
 }
 
-func (s *ContactServer) GetFriendsList(ctx context.Context, in *contact2.GetFriendsListRequest) (*contact2.GetFriendsListResponse, error) {
-	l := logic2.NewGetFriendsListLogic(ctx, s.svcCtx)
+func (s *ContactServer) GetFriendsList(ctx context.Context, in *contact.GetFriendsListRequest) (*contact.GetFriendsListResponse, error) {
+	l := logic.NewGetFriendsListLogic(ctx, s.svcCtx)
 	return l.GetFriendsList(in)
 }
