@@ -58,17 +58,11 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 			}
 		}
 		users = append(users, types.User{
-			Id:                 userInfo.UserId,
-			Name:               userInfo.Username,
-			FollowCount:        0,
-			FollowerCount:      0,
-			IsFollow:           true,
-			AvatarUrl:          "",
-			BackgroundImageUrl: "",
-			Signature:          "",
-			TotalFavorited:     "",
-			WorkCount:          0,
-			FavoriteCount:      0,
+			Id:            userInfo.UserId,
+			Name:          userInfo.Username,
+			FollowCount:   0,
+			FollowerCount: 0,
+			IsFollow:      true,
 		})
 	}
 	if err != nil {
