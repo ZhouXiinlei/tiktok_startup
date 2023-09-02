@@ -126,6 +126,16 @@ type GetFavoriteListResponse struct {
 	VideoList []Video `json:"video_list"`
 }
 
+type PublishedListRequest struct {
+	Token  string `form:"token"`
+	UserId int64  `form:"user_id"`
+}
+
+type PublishedListResponse struct {
+	BasicResponse
+	VideoList []Video `json:"video_list"`
+}
+
 type Message struct {
 	Id         int64  `json:"id"`
 	ToUserId   int64  `json:"to_user_id"`
