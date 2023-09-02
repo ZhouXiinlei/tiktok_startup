@@ -14,11 +14,9 @@ type Video struct {
 	FavoriteCount int64
 	CommentCount  int64
 
-	// has many
-	Comments  []Comment  `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Favorites []Favorite `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-
-	Author User `gorm:"foreignKey:AuthorId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	//Comments  []Comment  `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	//Favorites []Favorite `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	//Author    User       `gorm:"foreignKey:AuthorId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
@@ -37,11 +35,11 @@ type Comment struct {
 }
 
 type Favorite struct {
-	FavoriteId int64 `gorm:"not null;primaryKey"`
-	UserId     int64 `gorm:"not null"`
-	VideoId    int64 `gorm:"not null"`
+	FavoriteId int64 `gorm:"not null;index;primaryKey"`
+	UserId     int64 `gorm:"not null;index"`
+	VideoId    int64 `gorm:"not null;index"`
 
-	User  User  `gorm:"foreignKey:UserId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	//User  User  `gorm:"foreignKey:UserId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Video Video `gorm:"foreignKey:VideoId;References:VideoId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	CreatedAt time.Time `gorm:"not null"`
