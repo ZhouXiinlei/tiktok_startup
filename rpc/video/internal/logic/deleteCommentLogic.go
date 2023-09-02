@@ -3,31 +3,33 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
+
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type DeleteVideoCommentLogic struct {
+type DeleteCommentLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewDeleteVideoCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteVideoCommentLogic {
-	return &DeleteVideoCommentLogic{
+func NewDeleteCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteCommentLogic {
+	return &DeleteCommentLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *DeleteVideoCommentLogic) DeleteVideoComment(in *video.DeleteVideoCommentRequest) (*video.Empty, error) {
+func (l *DeleteCommentLogic) DeleteComment(in *video.DeleteCommentRequest) (*video.Empty, error) {
 	if err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
 		var comment model.Comment
 		// MySQL doesn't support returning feature, so we must select the comment first

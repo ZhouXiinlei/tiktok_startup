@@ -27,10 +27,10 @@ const (
 	Video_UnFavoriteVideo_FullMethodName      = "/video.Video/UnFavoriteVideo"
 	Video_GetFavoriteVideoList_FullMethodName = "/video.Video/GetFavoriteVideoList"
 	Video_IsFavoriteVideo_FullMethodName      = "/video.Video/IsFavoriteVideo"
-	Video_CommentVideo_FullMethodName         = "/video.Video/CommentVideo"
+	Video_CreateComment_FullMethodName        = "/video.Video/CreateComment"
 	Video_GetCommentList_FullMethodName       = "/video.Video/GetCommentList"
-	Video_DeleteVideoComment_FullMethodName   = "/video.Video/DeleteVideoComment"
-	Video_GetCommentInfo_FullMethodName       = "/video.Video/GetCommentInfo"
+	Video_DeleteComment_FullMethodName        = "/video.Video/DeleteComment"
+	Video_GetCommentById_FullMethodName       = "/video.Video/GetCommentById"
 )
 
 // VideoClient is the client API for Video service.
@@ -45,10 +45,10 @@ type VideoClient interface {
 	UnFavoriteVideo(ctx context.Context, in *UnFavoriteVideoRequest, opts ...grpc.CallOption) (*Empty, error)
 	GetFavoriteVideoList(ctx context.Context, in *GetFavoriteVideoListRequest, opts ...grpc.CallOption) (*GetFavoriteVideoListResponse, error)
 	IsFavoriteVideo(ctx context.Context, in *IsFavoriteVideoRequest, opts ...grpc.CallOption) (*IsFavoriteVideoResponse, error)
-	CommentVideo(ctx context.Context, in *CommentVideoRequest, opts ...grpc.CallOption) (*CommentVideoResponse, error)
+	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error)
 	GetCommentList(ctx context.Context, in *GetCommentListRequest, opts ...grpc.CallOption) (*GetCommentListResponse, error)
-	DeleteVideoComment(ctx context.Context, in *DeleteVideoCommentRequest, opts ...grpc.CallOption) (*Empty, error)
-	GetCommentInfo(ctx context.Context, in *GetCommentInfoRequest, opts ...grpc.CallOption) (*GetCommentInfoResponse, error)
+	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Empty, error)
+	GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error)
 }
 
 type videoClient struct {
@@ -131,9 +131,9 @@ func (c *videoClient) IsFavoriteVideo(ctx context.Context, in *IsFavoriteVideoRe
 	return out, nil
 }
 
-func (c *videoClient) CommentVideo(ctx context.Context, in *CommentVideoRequest, opts ...grpc.CallOption) (*CommentVideoResponse, error) {
-	out := new(CommentVideoResponse)
-	err := c.cc.Invoke(ctx, Video_CommentVideo_FullMethodName, in, out, opts...)
+func (c *videoClient) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error) {
+	out := new(CreateCommentResponse)
+	err := c.cc.Invoke(ctx, Video_CreateComment_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,18 +149,18 @@ func (c *videoClient) GetCommentList(ctx context.Context, in *GetCommentListRequ
 	return out, nil
 }
 
-func (c *videoClient) DeleteVideoComment(ctx context.Context, in *DeleteVideoCommentRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *videoClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, Video_DeleteVideoComment_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Video_DeleteComment_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *videoClient) GetCommentInfo(ctx context.Context, in *GetCommentInfoRequest, opts ...grpc.CallOption) (*GetCommentInfoResponse, error) {
-	out := new(GetCommentInfoResponse)
-	err := c.cc.Invoke(ctx, Video_GetCommentInfo_FullMethodName, in, out, opts...)
+func (c *videoClient) GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error) {
+	out := new(GetCommentByIdResponse)
+	err := c.cc.Invoke(ctx, Video_GetCommentById_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -179,10 +179,10 @@ type VideoServer interface {
 	UnFavoriteVideo(context.Context, *UnFavoriteVideoRequest) (*Empty, error)
 	GetFavoriteVideoList(context.Context, *GetFavoriteVideoListRequest) (*GetFavoriteVideoListResponse, error)
 	IsFavoriteVideo(context.Context, *IsFavoriteVideoRequest) (*IsFavoriteVideoResponse, error)
-	CommentVideo(context.Context, *CommentVideoRequest) (*CommentVideoResponse, error)
+	CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error)
 	GetCommentList(context.Context, *GetCommentListRequest) (*GetCommentListResponse, error)
-	DeleteVideoComment(context.Context, *DeleteVideoCommentRequest) (*Empty, error)
-	GetCommentInfo(context.Context, *GetCommentInfoRequest) (*GetCommentInfoResponse, error)
+	DeleteComment(context.Context, *DeleteCommentRequest) (*Empty, error)
+	GetCommentById(context.Context, *GetCommentByIdRequest) (*GetCommentByIdResponse, error)
 	mustEmbedUnimplementedVideoServer()
 }
 
@@ -214,17 +214,17 @@ func (UnimplementedVideoServer) GetFavoriteVideoList(context.Context, *GetFavori
 func (UnimplementedVideoServer) IsFavoriteVideo(context.Context, *IsFavoriteVideoRequest) (*IsFavoriteVideoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsFavoriteVideo not implemented")
 }
-func (UnimplementedVideoServer) CommentVideo(context.Context, *CommentVideoRequest) (*CommentVideoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CommentVideo not implemented")
+func (UnimplementedVideoServer) CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
 }
 func (UnimplementedVideoServer) GetCommentList(context.Context, *GetCommentListRequest) (*GetCommentListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentList not implemented")
 }
-func (UnimplementedVideoServer) DeleteVideoComment(context.Context, *DeleteVideoCommentRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteVideoComment not implemented")
+func (UnimplementedVideoServer) DeleteComment(context.Context, *DeleteCommentRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
 }
-func (UnimplementedVideoServer) GetCommentInfo(context.Context, *GetCommentInfoRequest) (*GetCommentInfoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCommentInfo not implemented")
+func (UnimplementedVideoServer) GetCommentById(context.Context, *GetCommentByIdRequest) (*GetCommentByIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommentById not implemented")
 }
 func (UnimplementedVideoServer) mustEmbedUnimplementedVideoServer() {}
 
@@ -383,20 +383,20 @@ func _Video_IsFavoriteVideo_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Video_CommentVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CommentVideoRequest)
+func _Video_CreateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCommentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VideoServer).CommentVideo(ctx, in)
+		return srv.(VideoServer).CreateComment(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Video_CommentVideo_FullMethodName,
+		FullMethod: Video_CreateComment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).CommentVideo(ctx, req.(*CommentVideoRequest))
+		return srv.(VideoServer).CreateComment(ctx, req.(*CreateCommentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -419,38 +419,38 @@ func _Video_GetCommentList_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Video_DeleteVideoComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteVideoCommentRequest)
+func _Video_DeleteComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCommentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VideoServer).DeleteVideoComment(ctx, in)
+		return srv.(VideoServer).DeleteComment(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Video_DeleteVideoComment_FullMethodName,
+		FullMethod: Video_DeleteComment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).DeleteVideoComment(ctx, req.(*DeleteVideoCommentRequest))
+		return srv.(VideoServer).DeleteComment(ctx, req.(*DeleteCommentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Video_GetCommentInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCommentInfoRequest)
+func _Video_GetCommentById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommentByIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VideoServer).GetCommentInfo(ctx, in)
+		return srv.(VideoServer).GetCommentById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Video_GetCommentInfo_FullMethodName,
+		FullMethod: Video_GetCommentById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).GetCommentInfo(ctx, req.(*GetCommentInfoRequest))
+		return srv.(VideoServer).GetCommentById(ctx, req.(*GetCommentByIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -495,20 +495,20 @@ var Video_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Video_IsFavoriteVideo_Handler,
 		},
 		{
-			MethodName: "CommentVideo",
-			Handler:    _Video_CommentVideo_Handler,
+			MethodName: "CreateComment",
+			Handler:    _Video_CreateComment_Handler,
 		},
 		{
 			MethodName: "GetCommentList",
 			Handler:    _Video_GetCommentList_Handler,
 		},
 		{
-			MethodName: "DeleteVideoComment",
-			Handler:    _Video_DeleteVideoComment_Handler,
+			MethodName: "DeleteComment",
+			Handler:    _Video_DeleteComment_Handler,
 		},
 		{
-			MethodName: "GetCommentInfo",
-			Handler:    _Video_GetCommentInfo_Handler,
+			MethodName: "GetCommentById",
+			Handler:    _Video_GetCommentById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

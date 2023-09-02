@@ -14,13 +14,13 @@ import (
 
 type (
 	Comment                      = video.Comment
-	CommentVideoRequest          = video.CommentVideoRequest
-	CommentVideoResponse         = video.CommentVideoResponse
-	DeleteVideoCommentRequest    = video.DeleteVideoCommentRequest
+	CreateCommentRequest         = video.CreateCommentRequest
+	CreateCommentResponse        = video.CreateCommentResponse
+	DeleteCommentRequest         = video.DeleteCommentRequest
 	Empty                        = video.Empty
 	FavoriteVideoRequest         = video.FavoriteVideoRequest
-	GetCommentInfoRequest        = video.GetCommentInfoRequest
-	GetCommentInfoResponse       = video.GetCommentInfoResponse
+	GetCommentByIdRequest        = video.GetCommentByIdRequest
+	GetCommentByIdResponse       = video.GetCommentByIdResponse
 	GetCommentListRequest        = video.GetCommentListRequest
 	GetCommentListResponse       = video.GetCommentListResponse
 	GetFavoriteVideoListRequest  = video.GetFavoriteVideoListRequest
@@ -45,10 +45,10 @@ type (
 		UnFavoriteVideo(ctx context.Context, in *UnFavoriteVideoRequest, opts ...grpc.CallOption) (*Empty, error)
 		GetFavoriteVideoList(ctx context.Context, in *GetFavoriteVideoListRequest, opts ...grpc.CallOption) (*GetFavoriteVideoListResponse, error)
 		IsFavoriteVideo(ctx context.Context, in *IsFavoriteVideoRequest, opts ...grpc.CallOption) (*IsFavoriteVideoResponse, error)
-		CommentVideo(ctx context.Context, in *CommentVideoRequest, opts ...grpc.CallOption) (*CommentVideoResponse, error)
+		CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error)
 		GetCommentList(ctx context.Context, in *GetCommentListRequest, opts ...grpc.CallOption) (*GetCommentListResponse, error)
-		DeleteVideoComment(ctx context.Context, in *DeleteVideoCommentRequest, opts ...grpc.CallOption) (*Empty, error)
-		GetCommentInfo(ctx context.Context, in *GetCommentInfoRequest, opts ...grpc.CallOption) (*GetCommentInfoResponse, error)
+		DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Empty, error)
+		GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error)
 	}
 
 	defaultVideo struct {
@@ -102,9 +102,9 @@ func (m *defaultVideo) IsFavoriteVideo(ctx context.Context, in *IsFavoriteVideoR
 	return client.IsFavoriteVideo(ctx, in, opts...)
 }
 
-func (m *defaultVideo) CommentVideo(ctx context.Context, in *CommentVideoRequest, opts ...grpc.CallOption) (*CommentVideoResponse, error) {
+func (m *defaultVideo) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error) {
 	client := video.NewVideoClient(m.cli.Conn())
-	return client.CommentVideo(ctx, in, opts...)
+	return client.CreateComment(ctx, in, opts...)
 }
 
 func (m *defaultVideo) GetCommentList(ctx context.Context, in *GetCommentListRequest, opts ...grpc.CallOption) (*GetCommentListResponse, error) {
@@ -112,12 +112,12 @@ func (m *defaultVideo) GetCommentList(ctx context.Context, in *GetCommentListReq
 	return client.GetCommentList(ctx, in, opts...)
 }
 
-func (m *defaultVideo) DeleteVideoComment(ctx context.Context, in *DeleteVideoCommentRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (m *defaultVideo) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Empty, error) {
 	client := video.NewVideoClient(m.cli.Conn())
-	return client.DeleteVideoComment(ctx, in, opts...)
+	return client.DeleteComment(ctx, in, opts...)
 }
 
-func (m *defaultVideo) GetCommentInfo(ctx context.Context, in *GetCommentInfoRequest, opts ...grpc.CallOption) (*GetCommentInfoResponse, error) {
+func (m *defaultVideo) GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error) {
 	client := video.NewVideoClient(m.cli.Conn())
-	return client.GetCommentInfo(ctx, in, opts...)
+	return client.GetCommentById(ctx, in, opts...)
 }

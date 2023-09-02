@@ -62,9 +62,9 @@ func (s *VideoServer) IsFavoriteVideo(ctx context.Context, in *video.IsFavoriteV
 	return l.IsFavoriteVideo(in)
 }
 
-func (s *VideoServer) CommentVideo(ctx context.Context, in *video.CommentVideoRequest) (*video.CommentVideoResponse, error) {
-	l := logic.NewCommentVideoLogic(ctx, s.svcCtx)
-	return l.CommentVideo(in)
+func (s *VideoServer) CreateComment(ctx context.Context, in *video.CreateCommentRequest) (*video.CreateCommentResponse, error) {
+	l := logic.NewCreateCommentLogic(ctx, s.svcCtx)
+	return l.CreateComment(in)
 }
 
 func (s *VideoServer) GetCommentList(ctx context.Context, in *video.GetCommentListRequest) (*video.GetCommentListResponse, error) {
@@ -72,12 +72,12 @@ func (s *VideoServer) GetCommentList(ctx context.Context, in *video.GetCommentLi
 	return l.GetCommentList(in)
 }
 
-func (s *VideoServer) DeleteVideoComment(ctx context.Context, in *video.DeleteVideoCommentRequest) (*video.Empty, error) {
-	l := logic.NewDeleteVideoCommentLogic(ctx, s.svcCtx)
-	return l.DeleteVideoComment(in)
+func (s *VideoServer) DeleteComment(ctx context.Context, in *video.DeleteCommentRequest) (*video.Empty, error) {
+	l := logic.NewDeleteCommentLogic(ctx, s.svcCtx)
+	return l.DeleteComment(in)
 }
 
-func (s *VideoServer) GetCommentInfo(ctx context.Context, in *video.GetCommentInfoRequest) (*video.GetCommentInfoResponse, error) {
-	l := logic.NewGetCommentInfoLogic(ctx, s.svcCtx)
-	return l.GetCommentInfo(in)
+func (s *VideoServer) GetCommentById(ctx context.Context, in *video.GetCommentByIdRequest) (*video.GetCommentByIdResponse, error) {
+	l := logic.NewGetCommentByIdLogic(ctx, s.svcCtx)
+	return l.GetCommentById(in)
 }

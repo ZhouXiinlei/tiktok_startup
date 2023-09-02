@@ -36,10 +36,10 @@ service Video {
   rpc GetFavoriteVideoList(GetFavoriteVideoListRequest) returns (GetFavoriteVideoListResponse);
   rpc IsFavoriteVideo(IsFavoriteVideoRequest) returns (IsFavoriteVideoResponse);
 
-  rpc CommentVideo(CommentVideoRequest) returns (CommentVideoResponse);
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
   rpc GetCommentList(GetCommentListRequest) returns (GetCommentListResponse);
-  rpc DeleteVideoComment(DeleteVideoCommentRequest) returns(Empty);
-  rpc GetCommentInfo(GetCommentInfoRequest) returns (GetCommentInfoResponse);
+  rpc DeleteComment(DeleteCommentRequest) returns(Empty);
+  rpc GetCommentById(GetCommentByIdRequest) returns (GetCommentByIdResponse);
 }
 //获取视频列表
 message GetVideoListRequest {
@@ -91,13 +91,13 @@ message IsFavoriteVideoResponse {
   bool IsFavorite = 1;
 }
 //用户在视频下的评论
-message CommentVideoRequest {
+message CreateCommentRequest {
   int64 UserId = 1;
   int64 VideoId = 2;
   string Content = 3;
 }
-message CommentVideoResponse {
-  int64 Id = 1;
+message CreateCommentResponse {
+  int64 CommentId = 1;
   int64 UserId = 2;
   string Content = 3;
   int64 CreatedTime = 4;
@@ -110,15 +110,15 @@ message GetCommentListResponse {
   repeated Comment CommentList = 1;
 }
 //删除评论
-message DeleteVideoCommentRequest {
+message DeleteCommentRequest {
   int64 CommentId = 1;
 }
 //获取评论详细信息
-message GetCommentInfoRequest {
+message GetCommentByIdRequest {
   int64 CommentId = 1;
 }
-message GetCommentInfoResponse {
-  int64 Id = 1;
+message GetCommentByIdResponse {
+  int64 CommentId = 1;
   int64 UserId = 2;
   string Content = 3;
   int64 CreatedTime = 4;
