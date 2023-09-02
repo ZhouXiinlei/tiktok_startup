@@ -2,8 +2,12 @@ package logic
 
 import (
 	"context"
+	"errors"
 	"github.com/zeromicro/go-zero/core/logx"
+	"gorm.io/gorm"
+	"tikstart/common"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -24,13 +28,16 @@ func NewGetCommentInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 
 func (l *GetCommentInfoLogic) GetCommentInfo(in *video.GetCommentInfoRequest) (*video.GetCommentInfoResponse, error) {
 	var comment model.Comment
-	err := l.svcCtx.Mysql.Where("id = ?", in.CommentId).First(&comment).Error
+	err := l.svcCtx.Mysql.Where("comment_id = ?", in.CommentId).First(&comment).Error
 	if err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrCommentNotFound.Err()
+		}
+		return nil, utils.InternalWithDetails("err querying comment", err)
 	}
 
 	return &video.GetCommentInfoResponse{
-		Id:          int64(comment.ID),
+		Id:          comment.CommentId,
 		UserId:      comment.UserId,
 		Content:     comment.Content,
 		CreatedTime: comment.CreatedAt.Unix(),

@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -33,15 +34,15 @@ func (l *CommentVideoLogic) CommentVideo(in *video.CommentVideoRequest) (*video.
 
 	err := l.svcCtx.Mysql.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&comment).Error; err != nil {
-			return err
+			return utils.InternalWithDetails("error creating comment", err)
 		}
 
 		if err := tx.Model(&model.Video{}).
-			Where("id = ?", in.VideoId).
+			Where("video_id = ?", in.VideoId).
 			Clauses(clause.Locking{Strength: "UPDATE"}).
 			Update("comment_count", gorm.Expr("comment_count + ?", 1)).
 			Error; err != nil {
-			return err
+			return utils.InternalWithDetails("error updating comment count", err)
 		}
 
 		return nil
@@ -52,7 +53,7 @@ func (l *CommentVideoLogic) CommentVideo(in *video.CommentVideoRequest) (*video.
 	}
 
 	return &video.CommentVideoResponse{
-		Id:          int64(comment.ID),
+		Id:          comment.CommentId,
 		UserId:      comment.UserId,
 		Content:     comment.Content,
 		CreatedTime: comment.CreatedAt.Unix(),

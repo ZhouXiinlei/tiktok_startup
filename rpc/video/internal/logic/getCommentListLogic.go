@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -26,19 +27,18 @@ func (l *GetCommentListLogic) GetCommentList(in *video.GetCommentListRequest) (*
 	var comments []*model.Comment
 	if err := l.svcCtx.Mysql.
 		Where("video_id = ?", in.VideoId).
-		Limit(model.PopularVideoStandard).
 		Order("created_at").
 		Find(&comments).Error; err != nil {
-		return nil, err
+		return nil, utils.InternalWithDetails("err querying comment list", err)
 	}
 
 	commentList := make([]*video.Comment, 0, len(comments))
-	for _, v := range comments {
+	for _, comment := range comments {
 		commentList = append(commentList, &video.Comment{
-			Id:         int64(v.ID),
-			AuthorId:   v.UserId,
-			CreateTime: v.CreatedAt.Unix(),
-			Content:    v.Content,
+			Id:         comment.CommentId,
+			AuthorId:   comment.UserId,
+			CreateTime: comment.CreatedAt.Unix(),
+			Content:    comment.Content,
 		})
 	}
 
