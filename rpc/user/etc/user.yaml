@@ -16,4 +16,4 @@ MySQL:
   User: root
   Password: SXFsvsxegJ4PtI84MR
   Database: tiktok_startup
-  TablePrefix: "dev_"
+  TablePrefix: ""
