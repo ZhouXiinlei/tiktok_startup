@@ -2,6 +2,10 @@ package message
 
 import (
 	"context"
+	"google.golang.org/grpc/status"
+	"tikstart/common/utils"
+	"tikstart/http/schema"
+	"tikstart/rpc/contact/contact"
 
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
@@ -24,7 +28,28 @@ func NewActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ActionLogi
 }
 
 func (l *ActionLogic) Action(req *types.MessageActionRequest) (resp *types.MessageActionResponse, err error) {
-	// todo: add your logic here and delete this line
+	if req.ActionType != 1 {
+		return nil, schema.ApiError{
+			StatusCode: 422,
+			Code:       42205,
+			Message:    "未知操作",
+		}
+	}
 
-	return
+	// no need to handle error because we have middleware to intercept it
+	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
+
+	_, err = l.svcCtx.ContactRpc.CreateMessage(l.ctx, &contact.CreateMessageRequest{
+		FromId:  userClaims.UserId,
+		ToId:    req.ToUserId,
+		Content: req.Content,
+	})
+
+	// If error occurred, then it's an internal error.
+	if err != nil {
+		st, _ := status.FromError(err)
+		return nil, utils.ReturnInternalError(st, err)
+	}
+
+	return &types.MessageActionResponse{}, nil
 }
