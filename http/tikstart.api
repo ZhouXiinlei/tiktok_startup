@@ -104,7 +104,7 @@ type (
 
 	GetFriendListResponse {
 		BasicResponse
-		UserList []int64 `json:"user_list"`
+		UserList []User `json:"user_list"`
 	}
 )
 
@@ -112,6 +112,7 @@ type (
 	PublishVideoRequest {
 		Title string `form:"title"`
 		Token string `form:"token"`
+		//Data  []byte `form:"data"`
 	}
 	PublishVideoResponse {
 		BasicResponse
@@ -161,7 +162,7 @@ service tikstart {
 )
 service tikstart {
 	@handler PublishVideo // 发布视频
-	post /douyin/video (PublishVideoRequest) returns (PublishVideoResponse)
+	post /douyin/publish/action (PublishVideoRequest) returns (PublishVideoResponse)
 }
 
 @server(
@@ -286,7 +287,7 @@ type (
 	}
 )
 
-@server (
+@server(
 	group: video
 	prefix: /douyin
 	middleware: JwtAuth
