@@ -1,6 +1,7 @@
 Name: tikstart
 Host: 0.0.0.0
 Port: 8888
+MaxBytes: 1048576000
 
 UserRpc:
   Endpoints:
@@ -10,6 +11,7 @@ VideoRpc:
   Endpoints:
     - 127.0.0.1:8081
   NonBlock: true
+  Timeout : 100000
 ContactRpc:
   Endpoints:
     - 127.0.0.1:8082
@@ -17,3 +19,5 @@ ContactRpc:
 JwtAuth:
   Secret: ?xX7nYmfM<(4r%p
   Expire: 1209600 # 14天
+COS:
+  Endpoint: "https://tikstart-1254110372.cos.ap-shanghai.myqcloud.com"

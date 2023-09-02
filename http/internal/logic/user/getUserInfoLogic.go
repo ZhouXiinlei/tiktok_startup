@@ -2,9 +2,7 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/protobuf/types/known/anypb"
 	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
@@ -40,19 +38,7 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 				Message:    "用户名不存在",
 			}
 		} else {
-			for index, item := range st.Details() {
-				detail := item.(*anypb.Any)
-				fmt.Printf("%d: %s\n", index, string(detail.Value))
-			}
-
-			return nil, schema.ServerError{
-				ApiError: schema.ApiError{
-					StatusCode: 500,
-					Code:       50000,
-					Message:    "Internal Server Error",
-				},
-				Detail: err,
-			}
+			return nil, utils.ReturnInternalError(st, err)
 		}
 	}
 	return &types.GetUserInfoResponse{

@@ -6,7 +6,9 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
 	"regexp"
+	"tikstart/http/schema"
 )
 
 func MatchError(err error, target *status.Status) (*status.Status, bool) {
@@ -47,4 +49,20 @@ func InternalWithDetails(msg string, items ...interface{}) error {
 	}
 	st, _ := status.New(codes.Internal, msg).WithDetails(details...)
 	return st.Err()
+}
+
+func ReturnInternalError(st *status.Status, err error) error {
+	for index, item := range st.Details() {
+		detail := item.(*anypb.Any)
+		fmt.Printf("%d: %s\n", index, string(detail.Value))
+	}
+
+	return schema.ServerError{
+		ApiError: schema.ApiError{
+			StatusCode: 500,
+			Code:       50000,
+			Message:    "Internal Server Error",
+		},
+		Detail: err,
+	}
 }

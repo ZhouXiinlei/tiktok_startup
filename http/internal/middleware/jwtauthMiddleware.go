@@ -22,8 +22,11 @@ func NewJwtAuthMiddleware(c config.Config) *JwtAuthMiddleware {
 
 func (m *JwtAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		token := r.URL.Query().Get("token")
+		// fix for publish video
+		if token == "" {
+			token = r.PostFormValue("token")
+		}
 
 		if token == "" {
 			httpx.WriteJson(w, http.StatusUnauthorized, &types.BasicResponse{
