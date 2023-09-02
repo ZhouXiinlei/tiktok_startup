@@ -28,38 +28,45 @@ func NewFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FollowLogi
 func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 	// api should check user existence first, this interface doesn't
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
-		res := tx.Clauses(clause.OnConflict{
-			// mysql not supports "on conflict(primary key)" feature,
-			// so we must remove follow_id column from table,
-			// and set primary key to follower_id and followed_id,
-			// then it will check if primary key is duplicated,
-			// so the clause can function normally.
-			// the next line is useless , but I decide to keep it.
-			Columns: []clause.Column{{Name: "follower_id"}, {Name: "followed_id"}},
-			// not updating time to make follow idempotent
-			//DoUpdates: clause.AssignmentColumns([]string{"updated_at"}),
-			DoNothing: true,
-		}).Create(&model.Follow{
-			FollowerId: in.UserId,
-			FollowedId: in.TargetId,
-		})
-
-		// firstly check error
-		if err := res.Error; err != nil {
-			return utils.InternalWithDetails("error creating follow relation", err)
+		var count int64
+		err := tx.
+			Model(&model.Follow{}).
+			Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).
+			Count(&count).
+			Error
+		if err != nil {
+			return utils.InternalWithDetails("error querying follow record", err)
 		}
-		// if no rows affected, meaning follow relation already exists
-		if res.RowsAffected == 0 {
+		// follow record already exists, no need to modify count
+		if count > 0 {
 			return nil
 		}
 
-		// codes going here, meaning no error occurred, should add count
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.UserId).UpdateColumn("following_count", gorm.Expr("following_count + ?", 1)).Error
+		// create follow record
+		err = tx.Create(&model.Follow{
+			FollowerId: in.UserId,
+			FollowedId: in.TargetId,
+		}).Error
+		if err != nil {
+			return utils.InternalWithDetails("error creating follow record", err)
+		}
+
+		// modify count
+		err = tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Model(&model.User{}).
+			Where("user_id = ?", in.UserId).
+			UpdateColumn("following_count", gorm.Expr("following_count + ?", 1)).
+			Error
 		if err != nil {
 			return utils.InternalWithDetails("error adding following_count", err)
 		}
 
-		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.TargetId).UpdateColumn("follower_count", gorm.Expr("follower_count + ?", 1)).Error
+		err = tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).
+			Where("user_id = ?", in.TargetId).
+			UpdateColumn("follower_count", gorm.Expr("follower_count + ?", 1)).
+			Error
 		if err != nil {
 			return utils.InternalWithDetails("error adding follower_count", err)
 		}

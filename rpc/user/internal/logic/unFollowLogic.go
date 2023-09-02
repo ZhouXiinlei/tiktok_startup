@@ -31,18 +31,28 @@ func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) 
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		res := tx.Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).Delete(&model.Follow{})
 		if err := res.Error; err != nil {
-			return utils.InternalWithDetails("error deleting follow relation", err)
+			return utils.InternalWithDetails("error deleting follow record", err)
 		}
 		if res.RowsAffected == 0 {
 			return nil
 		}
 
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.UserId).UpdateColumn("following_count", gorm.Expr("following_count - ?", 1)).Error
+		err := tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Model(&model.User{}).
+			Where("user_id = ?", in.UserId).
+			UpdateColumn("following_count", gorm.Expr("following_count - ?", 1)).
+			Error
 		if err != nil {
 			return utils.InternalWithDetails("error reducing following_count", err)
 		}
 
-		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).Where("user_id = ?", in.TargetId).UpdateColumn("follower_count", gorm.Expr("follower_count - ?", 1)).Error
+		err = tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Model(&model.User{}).
+			Where("user_id = ?", in.TargetId).
+			UpdateColumn("follower_count", gorm.Expr("follower_count - ?", 1)).
+			Error
 		if err != nil {
 			return utils.InternalWithDetails("error reducing follower_count", err)
 		}

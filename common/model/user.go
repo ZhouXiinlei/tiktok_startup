@@ -23,12 +23,14 @@ type User struct {
 }
 
 type Follow struct {
-	//ID         int64     `gorm:"not null;primaryKey;autoIncrement"`
-	FollowerId int64     `gorm:"not null;primaryKey"`
-	FollowedId int64     `gorm:"not null;primaryKey"`
-	CreatedAt  time.Time `gorm:"not null;"`
-	//UpdatedAt  time.Time `gorm:"not null;"`
+	FollowId   int64 `gorm:"not null;primaryKey;autoIncrement"`
+	FollowerId int64 `gorm:"not null"`
+	FollowedId int64 `gorm:"not null"`
 
 	Follower User `gorm:"foreignKey:FollowerId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Followed User `gorm:"foreignKey:FollowedId;References:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
+	CreatedAt time.Time `gorm:"not null;"`
+	UpdatedAt time.Time `gorm:"not null;"`
+	DeletedAt gorm.DeletedAt
 }
