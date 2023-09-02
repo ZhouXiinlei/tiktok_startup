@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 
@@ -25,16 +26,19 @@ func NewGetVideoListByAuthorLogic(ctx context.Context, svcCtx *svc.ServiceContex
 
 func (l *GetVideoListByAuthorLogic) GetVideoListByAuthor(in *video.GetVideoListByAuthorRequest) (*video.GetVideoListByAuthorResponse, error) {
 	var videos []model.Video
-	err := l.svcCtx.Mysql.Where("author_id = ?", in.AuthorId).
+	err := l.svcCtx.Mysql.
+		Where("author_id = ?", in.AuthorId).
 		Order("created_at desc").
-		Find(&videos).Error
+		Find(&videos).
+		Error
 	if err != nil {
-		return nil, err
+		return nil, utils.InternalWithDetails("error getting video list by author", err)
 	}
-	resp := &video.GetVideoListByAuthorResponse{}
+
+	videoList := make([]*video.VideoInfo, 0, len(videos))
 	for _, v := range videos {
 		videoInfo := &video.VideoInfo{
-			Id:            int64(v.ID),
+			Id:            v.VideoId,
 			AuthorId:      v.AuthorId,
 			Title:         v.Title,
 			PlayUrl:       v.PlayUrl,
@@ -42,7 +46,9 @@ func (l *GetVideoListByAuthorLogic) GetVideoListByAuthor(in *video.GetVideoListB
 			FavoriteCount: v.FavoriteCount,
 			CommentCount:  v.CommentCount,
 		}
-		resp.Video = append(resp.Video, videoInfo)
+		videoList = append(videoList, videoInfo)
 	}
-	return resp, nil
+	return &video.GetVideoListByAuthorResponse{
+		Video: videoList,
+	}, nil
 }
