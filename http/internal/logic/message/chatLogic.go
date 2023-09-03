@@ -34,8 +34,7 @@ func (l *ChatLogic) Chat(req *types.MessageChatRequest) (resp *types.MessageChat
 		PreMsgTime: req.PreMsgTime,
 	})
 	if err != nil {
-		st, _ := status.FromError(err)
-		return nil, utils.ReturnInternalError(st, err)
+		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
 
 	messageList := make([]types.Message, 0, len(res.Messages))

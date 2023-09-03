@@ -48,8 +48,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			})
 			if err != nil {
 				logx.WithContext(l.ctx).Errorf("创建评论失败: %s", err.Error())
-				st, _ := status.FromError(err)
-				return utils.ReturnInternalError(st, err)
+				return utils.ReturnInternalError(status.Convert(err), err)
 			}
 
 			comment.Content = createResp.Content
@@ -63,8 +62,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			})
 			if err != nil {
 				logx.WithContext(l.ctx).Errorf("获取用户信息失败: %s", err.Error())
-				st, _ := status.FromError(err)
-				return utils.ReturnInternalError(st, err)
+				return utils.ReturnInternalError(status.Convert(err), err)
 			}
 
 			comment.User = types.User{
@@ -93,8 +91,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取评论信息失败: %s", err.Error())
-			st, _ := status.FromError(err)
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(status.Convert(err), err)
 		}
 
 		if commentInfo.UserId != userClaims.UserId {
@@ -109,8 +106,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			CommentId: req.CommentId,
 		}); err != nil {
 			logx.WithContext(l.ctx).Errorf("删除评论失败: %s", err.Error())
-			st, _ := status.FromError(err)
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(status.Convert(err), err)
 		}
 
 		return &types.CommentResponse{

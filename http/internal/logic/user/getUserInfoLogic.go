@@ -51,12 +51,16 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 		TargetId: targetId,
 	})
 	if err != nil {
-		st, _ := status.FromError(err)
-		return nil, utils.ReturnInternalError(st, err)
+		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
-	CountInfo, err := l.svcCtx.VideoRpc.GetCountById(l.ctx, &video.GetCountByIdRequest{
+
+	countInfo, err := l.svcCtx.VideoRpc.GetCountById(l.ctx, &video.GetCountByIdRequest{
 		UserId: targetId,
 	})
+	if err != nil {
+		return nil, utils.ReturnInternalError(status.Convert(err), err)
+	}
+
 	return &types.GetUserInfoResponse{
 		BasicResponse: types.BasicResponse{
 			StatusCode: 0,
@@ -68,9 +72,9 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 			IsFollow:       isFollowResp.IsFollow,
 			FollowCount:    userResp.FollowingCount,
 			FollowerCount:  userResp.FollowerCount,
-			TotalFavorited: CountInfo.TotalFavorited,
-			FavoriteCount:  CountInfo.UserFavoriteCount,
-			WorkCount:      CountInfo.WorkCount,
+			TotalFavorited: countInfo.TotalFavorited,
+			FavoriteCount:  countInfo.UserFavoriteCount,
+			WorkCount:      countInfo.WorkCount,
 		},
 	}, nil
 }

@@ -2,15 +2,13 @@ package message
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/status"
 	"tikstart/common/utils"
-	"tikstart/http/schema"
-	"tikstart/rpc/contact/contact"
-
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"tikstart/http/schema"
+	"tikstart/rpc/contact/contact"
 )
 
 type ActionLogic struct {
@@ -47,8 +45,7 @@ func (l *ActionLogic) Action(req *types.MessageActionRequest) (resp *types.Messa
 
 	// If error occurred, then it's an internal error.
 	if err != nil {
-		st, _ := status.FromError(err)
-		return nil, utils.ReturnInternalError(st, err)
+		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
 
 	return &types.MessageActionResponse{}, nil

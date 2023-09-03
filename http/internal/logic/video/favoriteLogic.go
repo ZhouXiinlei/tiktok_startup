@@ -55,8 +55,7 @@ func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.Favori
 			UserId:  userClaims.UserId,
 			VideoId: req.VideoId,
 		}); err != nil {
-			st, _ := status.FromError(err)
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(status.Convert(err), err)
 		}
 	default:
 		return nil, schema.ApiError{
