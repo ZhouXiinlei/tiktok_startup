@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"strings"
 	"tikstart/common/utils"
 	"tikstart/http/internal/logic/video"
 	"tikstart/http/internal/svc"
@@ -107,7 +108,7 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		VideoUrl := Url.String()
 
 		// 获取视频封面的url，地址和视频地址一样，只是所在目录是/video/cover/，文件名是视频文件名+.jpg后缀
-		Url.Path = "/video/cover/" + fileName + ".jpg"
+		Url.Path = "/video/cover/" + strings.Replace(fileName, ".mp4", ".jpg", -1)
 		CoverUrl := Url.String()
 
 		_, err = svcCtx.VideoRpc.PublishVideo(r.Context(), &rpcvideo.PublishVideoRequest{
