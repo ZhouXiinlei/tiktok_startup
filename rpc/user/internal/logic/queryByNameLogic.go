@@ -44,6 +44,7 @@ func (l *QueryByNameLogic) QueryByName(in *user.QueryByNameRequest) (*user.Query
 		Username:       userRecord.Username,
 		FollowingCount: userRecord.FollowingCount,
 		FollowerCount:  userRecord.FollowerCount,
+		Password:       userRecord.Password,
 		CreatedAt:      userRecord.CreatedAt.Unix(),
 		UpdatedAt:      userRecord.UpdatedAt.Unix(),
 	}, nil
