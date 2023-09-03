@@ -33,6 +33,15 @@ func NewFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FollowLogi
 
 func (l *FollowLogic) Follow(req *types.FollowRequest) (resp *types.FollowResponse, err error) {
 	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
+
+	if userClaims.UserId == req.ToUserId {
+		return nil, schema.ApiError{
+			StatusCode: 422,
+			Code:       42207,
+			Message:    "不能关注自己",
+		}
+	}
+
 	_, err = l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
 		UserId: req.ToUserId,
 	})
