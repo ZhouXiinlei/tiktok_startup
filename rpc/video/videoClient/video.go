@@ -23,6 +23,8 @@ type (
 	GetCommentByIdResponse       = video.GetCommentByIdResponse
 	GetCommentListRequest        = video.GetCommentListRequest
 	GetCommentListResponse       = video.GetCommentListResponse
+	GetCountByIdRequest          = video.GetCountByIdRequest
+	GetCountByIdResponse         = video.GetCountByIdResponse
 	GetFavoriteVideoListRequest  = video.GetFavoriteVideoListRequest
 	GetFavoriteVideoListResponse = video.GetFavoriteVideoListResponse
 	GetVideoListByAuthorRequest  = video.GetVideoListByAuthorRequest
@@ -49,6 +51,7 @@ type (
 		GetCommentList(ctx context.Context, in *GetCommentListRequest, opts ...grpc.CallOption) (*GetCommentListResponse, error)
 		DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Empty, error)
 		GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error)
+		GetCountById(ctx context.Context, in *GetCountByIdRequest, opts ...grpc.CallOption) (*GetCountByIdResponse, error)
 	}
 
 	defaultVideo struct {
@@ -120,4 +123,9 @@ func (m *defaultVideo) DeleteComment(ctx context.Context, in *DeleteCommentReque
 func (m *defaultVideo) GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error) {
 	client := video.NewVideoClient(m.cli.Conn())
 	return client.GetCommentById(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetCountById(ctx context.Context, in *GetCountByIdRequest, opts ...grpc.CallOption) (*GetCountByIdResponse, error) {
+	client := video.NewVideoClient(m.cli.Conn())
+	return client.GetCountById(ctx, in, opts...)
 }
