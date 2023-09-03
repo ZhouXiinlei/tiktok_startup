@@ -3,10 +3,18 @@ ListenOn: 0.0.0.0:8082
 Mode: dev
 Timeout : 100000
 
+#MySQL:
+#  Host: ts.dn11.top
+#  Port: 33066
+#  User: root
+#  Password: SXFsvsxegJ4PtI84MR
+#  Database: tiktok_startup
+#  TablePrefix: ""
+
 MySQL:
-  Host: ts.dn11.top
-  Port: 33066
-  User: root
+  Host: irain.cc
+  Port: 6033
+  User: tikstart
   Password: SXFsvsxegJ4PtI84MR
-  Database: tiktok_startup
+  Database: tikstart
   TablePrefix: ""
