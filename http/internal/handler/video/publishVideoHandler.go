@@ -106,12 +106,16 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		Url.Path = Keyname
 		VideoUrl := Url.String()
 
+		// 获取视频封面的url，地址和视频地址一样，只是所在目录是/video/cover/，文件名是视频文件名+.jpg后缀
+		Url.Path = "/video/cover/" + fileName + ".jpg"
+		CoverUrl := Url.String()
+
 		_, err = svcCtx.VideoRpc.PublishVideo(r.Context(), &rpcvideo.PublishVideoRequest{
 			Video: &rpcvideo.VideoInfo{
 				AuthorId: UserId,
 				Title:    req.Title,
 				PlayUrl:  VideoUrl,
-				CoverUrl: "11111",
+				CoverUrl: CoverUrl,
 			},
 		})
 		if err != nil {
