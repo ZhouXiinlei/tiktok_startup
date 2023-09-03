@@ -40,10 +40,11 @@ func (l *QueryByIdLogic) QueryById(in *user.QueryByIdRequest) (*user.QueryRespon
 	}
 
 	return &user.QueryResponse{
-		UserId:    userRecord.UserId,
-		Username:  userRecord.Username,
-		Password:  userRecord.Password,
-		CreatedAt: userRecord.CreatedAt.Unix(),
-		UpdatedAt: userRecord.UpdatedAt.Unix(),
+		UserId:         userRecord.UserId,
+		Username:       userRecord.Username,
+		FollowingCount: userRecord.FollowingCount,
+		FollowerCount:  userRecord.FollowerCount,
+		CreatedAt:      userRecord.CreatedAt.Unix(),
+		UpdatedAt:      userRecord.UpdatedAt.Unix(),
 	}, nil
 }

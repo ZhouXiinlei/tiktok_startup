@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/status"
 	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
@@ -26,9 +27,11 @@ func NewGetUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 }
 
 func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *types.GetUserInfoResponse, err error) {
-	queryId := req.UserId
-	res, err := l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
-		UserId: queryId,
+	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
+	targetId := req.UserId
+
+	userResp, err := l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
+		UserId: targetId,
 	})
 	if err != nil {
 		if st, match := utils.MatchError(err, common.ErrUserNotFound); match {
@@ -41,15 +44,27 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 			return nil, utils.ReturnInternalError(st, err)
 		}
 	}
+
+	isFollowResp, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &user.IsFollowRequest{
+		UserId:   userClaims.UserId,
+		TargetId: targetId,
+	})
+	if err != nil {
+		st, _ := status.FromError(err)
+		return nil, utils.ReturnInternalError(st, err)
+	}
+
 	return &types.GetUserInfoResponse{
 		BasicResponse: types.BasicResponse{
 			StatusCode: 0,
 			StatusMsg:  "",
 		},
 		User: types.User{
-			Id:       res.UserId,
-			Name:     res.Username,
-			IsFollow: false,
+			Id:            userResp.UserId,
+			Name:          userResp.Username,
+			IsFollow:      isFollowResp.IsFollow,
+			FollowCount:   userResp.FollowingCount,
+			FollowerCount: userResp.FollowerCount,
 		},
 	}, nil
 }
