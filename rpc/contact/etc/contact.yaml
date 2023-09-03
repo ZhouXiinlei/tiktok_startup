@@ -1,7 +1,6 @@
 Name: contact.rpc
 ListenOn: 0.0.0.0:8082
 Mode: dev
-Timeout : 100000
 
 #MySQL:
 #  Host: ts.dn11.top

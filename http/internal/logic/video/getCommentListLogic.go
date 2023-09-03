@@ -2,17 +2,16 @@ package video
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
+	"google.golang.org/grpc/status"
 	"tikstart/common/utils"
+	"tikstart/http/internal/svc"
+	"tikstart/http/internal/types"
 	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/video"
 	"tikstart/rpc/video/videoClient"
 	"time"
-
-	"tikstart/http/internal/svc"
-	"tikstart/http/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetCommentListLogic struct {
@@ -32,35 +31,31 @@ func NewGetCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (resp *types.GetCommentListResponse, err error) {
 	logx.WithContext(l.ctx).Infof("获取评论列表: %+v", req)
 
-	UserClaims, err := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
-	if err != nil {
-		return nil, err
-	}
+	UserClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	commentListData, err := l.svcCtx.VideoRpc.GetCommentList(l.ctx, &videoClient.GetCommentListRequest{
+	commentListRes, err := l.svcCtx.VideoRpc.GetCommentList(l.ctx, &videoClient.GetCommentListRequest{
 		VideoId: req.VideoId,
 	})
 	if err != nil {
-		logx.WithContext(l.ctx).Errorf("获取评论列表失败: %v", err)
-		return nil, err
+		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
 
-	order := make(map[int]int, len(commentListData.CommentList))
+	order := make(map[int]int, len(commentListRes.CommentList))
 
-	commentList, err := mr.MapReduce(func(source chan<- interface{}) {
-		for i, c := range commentListData.CommentList {
+	commentList, err := mr.MapReduce(func(source chan<- *video.Comment) {
+		for i, c := range commentListRes.CommentList {
 			source <- c
 			order[int(c.Id)] = i
 		}
-	}, func(item interface{}, writer mr.Writer[types.Comment], cancel func(error)) {
-		comment := item.(*video.Comment)
+	}, func(comment *video.Comment, writer mr.Writer[types.Comment], cancel func(error)) {
+		//comment := item.(*video.Comment)
 
 		userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
 			UserId: comment.AuthorId,
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取用户信息失败: %v", err)
-			cancel(err)
+			cancel(utils.ReturnInternalError(status.Convert(err), err))
 			return
 		}
 
@@ -70,10 +65,10 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取关注信息失败: %v", err)
-			cancel(err)
+			cancel(utils.ReturnInternalError(status.Convert(err), err))
 			return
 		}
-
+		// TODO: RPC使用PRELOAD直接查出用户信息
 		writer.Write(types.Comment{
 			Id:         comment.Id,
 			Content:    comment.Content,
@@ -82,20 +77,15 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 				Id:            userInfo.UserId,
 				Name:          userInfo.Username,
 				IsFollow:      isFollowRes.IsFollow,
-				FollowCount:   userInfo.FollowCount,
+				FollowCount:   userInfo.FollowingCount,
 				FollowerCount: userInfo.FollowerCount,
 			},
 		})
 	}, func(pipe <-chan types.Comment, writer mr.Writer[[]types.Comment], cancel func(error)) {
-		list := make([]types.Comment, len(commentListData.CommentList))
+		list := make([]types.Comment, len(commentListRes.CommentList))
 		for item := range pipe {
 			comment := item
-			i, ok := order[int(comment.Id)]
-			if !ok {
-				cancel(err)
-				return
-			}
-
+			i, _ := order[int(comment.Id)]
 			list[i] = comment
 		}
 		writer.Write(list)

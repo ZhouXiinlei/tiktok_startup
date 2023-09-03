@@ -2,16 +2,14 @@ package video
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/status"
 	"tikstart/common"
-	"tikstart/http/schema"
-
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
+	"tikstart/http/schema"
 	"tikstart/rpc/video/videoClient"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 const (

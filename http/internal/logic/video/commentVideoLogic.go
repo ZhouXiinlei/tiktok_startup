@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
+	"google.golang.org/grpc/status"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
+	"tikstart/http/schema"
 	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/videoClient"
 	"time"
@@ -34,21 +36,26 @@ func NewCommentVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comm
 func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types.CommentResponse, err error) {
 	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	if req.ActionType == Publish {
-		var Comment types.Comment
+	switch req.ActionType {
+	case Publish:
+		var comment types.Comment
+
 		err := mr.Finish(func() (err error) {
-			res, err := l.svcCtx.VideoRpc.CreateComment(l.ctx, &videoClient.CreateCommentRequest{
+			createResp, err := l.svcCtx.VideoRpc.CreateComment(l.ctx, &videoClient.CreateCommentRequest{
 				UserId:  userClaims.UserId,
 				VideoId: req.VideoId,
 				Content: req.CommentText,
 			})
 			if err != nil {
 				logx.WithContext(l.ctx).Errorf("创建评论失败: %s", err.Error())
-				return
+				st, _ := status.FromError(err)
+				return utils.ReturnInternalError(st, err)
 			}
-			Comment.Content = res.Content
-			Comment.Id = res.CommentId
-			Comment.CreateDate = time.Unix(res.CreatedTime, 0).Format("01-02")
+
+			comment.Content = createResp.Content
+			comment.Id = createResp.CommentId
+			comment.CreateDate = time.Unix(createResp.CreatedTime, 0).Format("01-02")
+
 			return nil
 		}, func() error {
 			userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
@@ -56,20 +63,20 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			})
 			if err != nil {
 				logx.WithContext(l.ctx).Errorf("获取用户信息失败: %s", err.Error())
-				return err
+				st, _ := status.FromError(err)
+				return utils.ReturnInternalError(st, err)
 			}
-			Comment.User = types.User{
+
+			comment.User = types.User{
 				Id:            userInfo.UserId,
 				Name:          userInfo.Username,
 				IsFollow:      false,
-				FollowCount:   userInfo.FollowCount,
+				FollowCount:   userInfo.FollowingCount,
 				FollowerCount: userInfo.FollowerCount,
 			}
 			return nil
 		})
-
 		if err != nil {
-			logx.WithContext(l.ctx).Errorf("创建评论失败: %s", err.Error())
 			return nil, err
 		}
 
@@ -78,27 +85,32 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 				StatusCode: 0,
 				StatusMsg:  "Success",
 			},
-			Comment: Comment,
+			Comment: comment,
 		}, nil
-	} else if req.ActionType == Delete {
+	case Delete:
 		commentInfo, err := l.svcCtx.VideoRpc.GetCommentById(l.ctx, &videoClient.GetCommentByIdRequest{
 			CommentId: req.CommentId,
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取评论信息失败: %s", err.Error())
-			return nil, err
+			st, _ := status.FromError(err)
+			return nil, utils.ReturnInternalError(st, err)
 		}
 
 		if commentInfo.UserId != userClaims.UserId {
-			logx.WithContext(l.ctx).Errorf("用户无权限删除此评论")
-			return nil, err
+			return nil, schema.ApiError{
+				StatusCode: 403,
+				Code:       40300,
+				Message:    "用户无权限删除此评论",
+			}
 		}
 
 		if _, err = l.svcCtx.VideoRpc.DeleteComment(l.ctx, &videoClient.DeleteCommentRequest{
 			CommentId: req.CommentId,
 		}); err != nil {
 			logx.WithContext(l.ctx).Errorf("删除评论失败: %s", err.Error())
-			return nil, err
+			st, _ := status.FromError(err)
+			return nil, utils.ReturnInternalError(st, err)
 		}
 
 		return &types.CommentResponse{
@@ -107,6 +119,12 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 				StatusMsg:  "Success",
 			},
 		}, nil
+	default:
+		return nil, schema.ApiError{
+			StatusCode: 422,
+			Code:       42200,
+			Message:    "未知操作",
+		}
 	}
-	return nil, err
+
 }

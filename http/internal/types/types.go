@@ -83,7 +83,7 @@ type GetVideoListRequest struct {
 
 type GetVideoListResponse struct {
 	BasicResponse
-	Next_time int64   `json:"next_time"`
+	NextTime  int64   `json:"next_time"`
 	VideoList []Video `json:"video_list"`
 }
 

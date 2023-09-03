@@ -2,10 +2,9 @@ package video
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type PublishVideoLogic struct {

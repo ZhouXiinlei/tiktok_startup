@@ -3,13 +3,12 @@ package video
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/status"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
-	"tikstart/http/schema"
 	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/videoClient"
-	"time"
 )
 
 type GetVideoListLogic struct {
@@ -32,97 +31,70 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 	if err == nil {
 		userId = userClaims.UserId
 	}
-	var LatestTime int64 = 0
-	if req.LatestTime == 0 {
-		LatestTime = time.Now().Unix()
-	} else {
-		LatestTime = req.LatestTime / 1000
-	}
-	GetVideoListResponse, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoClient.GetVideoListRequest{
+
+	//latestTime := time.Now().Unix()
+	//if req.LatestTime != 0 {
+	//    latestTime = req.LatestTime / 1000
+	//}
+
+	videoListRes, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoClient.GetVideoListRequest{
 		Num:        20,
-		LatestTime: LatestTime,
+		LatestTime: 1693739019,
 	})
 	if err != nil {
-		return nil, schema.ServerError{
-			ApiError: schema.ApiError{
-				StatusCode: 500,
-				Code:       50000,
-				Message:    "Internal Server Error",
-			},
-			Detail: err,
-		}
+		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
-	resp = &types.GetVideoListResponse{}
-	resp.BasicResponse = types.BasicResponse{
-		StatusCode: 0,
-		StatusMsg:  "Success",
+
+	// TODO: 直接让RPC返回NextTime
+	var nextTime int64 = 0
+	if len(videoListRes.VideoList) != 0 {
+		nextTime = videoListRes.VideoList[len(videoListRes.VideoList)-1].CreateTime
 	}
-	if len(GetVideoListResponse.VideoList) != 0 {
-		resp.Next_time = GetVideoListResponse.VideoList[len(GetVideoListResponse.VideoList)-1].CreateTime
-	}
-	for _, v := range GetVideoListResponse.VideoList {
+
+	// 补充视频信息
+	videoList := make([]types.Video, 0, len(videoListRes.VideoList))
+	for _, v := range videoListRes.VideoList {
 		//获取作者信息和关注情况
-		GetUserInfoResponse, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
+		userInfoResp, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
 			UserId: v.AuthorId,
 		})
 		if err != nil {
-			return nil, schema.ServerError{
-				ApiError: schema.ApiError{
-					StatusCode: 500,
-					Code:       50000,
-					Message:    "Internal Server Error",
-				},
-				Detail: err,
-			}
+			return nil, utils.ReturnInternalError(status.Convert(err), err)
 		}
 		//获取视频收藏状态
 		isFavorite := false
 		if userId != 0 {
-			IsFavoriteVideoResponse, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
+			isFavoriteVideoRes, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
 				UserId:  userId,
 				VideoId: v.Id,
 			})
 			if err != nil {
-				return nil, schema.ServerError{
-					ApiError: schema.ApiError{
-						StatusCode: 500,
-						Code:       50000,
-						Message:    "Internal Server Error",
-					},
-					Detail: err,
-				}
+				return nil, utils.ReturnInternalError(status.Convert(err), err)
 			}
-			isFavorite = IsFavoriteVideoResponse.IsFavorite
+			isFavorite = isFavoriteVideoRes.IsFavorite
 		}
+		//获取作者关注状态
 		isFollow := false
 		if userId != 0 {
-			IsFollowVideoResponse, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &userClient.IsFollowRequest{
-
+			isFollowVideoRes, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &userClient.IsFollowRequest{
 				UserId:   userId,
 				TargetId: v.AuthorId,
 			})
 			if err != nil {
-				return nil, schema.ServerError{
-					ApiError: schema.ApiError{
-						StatusCode: 500,
-						Code:       50000,
-						Message:    "Internal Server Error",
-					},
-					Detail: err,
-				}
+				return nil, utils.ReturnInternalError(status.Convert(err), err)
 			}
-			isFollow = IsFollowVideoResponse.IsFollow
+			isFollow = isFollowVideoRes.IsFollow
 
 		}
-		resp.VideoList = append(resp.VideoList, types.Video{
+		videoList = append(videoList, types.Video{
 			Id:    v.Id,
 			Title: v.Title,
 			Author: types.User{
 				Id:            v.AuthorId,
-				Name:          GetUserInfoResponse.Username,
+				Name:          userInfoResp.Username,
 				IsFollow:      isFollow,
-				FollowCount:   GetUserInfoResponse.FollowCount,
-				FollowerCount: GetUserInfoResponse.FollowerCount,
+				FollowCount:   userInfoResp.FollowingCount,
+				FollowerCount: userInfoResp.FollowerCount,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
@@ -132,5 +104,12 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		})
 	}
 
-	return resp, nil
+	return &types.GetVideoListResponse{
+		BasicResponse: types.BasicResponse{
+			StatusCode: 0,
+			StatusMsg:  "Success",
+		},
+		VideoList: videoList,
+		NextTime:  nextTime,
+	}, nil
 }
