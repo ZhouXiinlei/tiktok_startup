@@ -40,6 +40,7 @@ service Video {
   rpc GetCommentList(GetCommentListRequest) returns (GetCommentListResponse);
   rpc DeleteComment(DeleteCommentRequest) returns(Empty);
   rpc GetCommentById(GetCommentByIdRequest) returns (GetCommentByIdResponse);
+  rpc GetCountById(GetCountByIdRequest) returns(GetCountByIdResponse);
 }
 //获取视频列表
 message GetVideoListRequest {
@@ -122,4 +123,12 @@ message GetCommentByIdResponse {
   int64 UserId = 2;
   string Content = 3;
   int64 CreatedTime = 4;
+}
+message GetCountByIdRequest{
+  int64 UserId = 1;
+}
+message GetCountByIdResponse{
+  int64 TotalFavorited = 1;
+  int64 WorkCount = 2;
+  int64 UserFavoriteCount = 3;
 }

@@ -81,3 +81,8 @@ func (s *VideoServer) GetCommentById(ctx context.Context, in *video.GetCommentBy
 	l := logic.NewGetCommentByIdLogic(ctx, s.svcCtx)
 	return l.GetCommentById(in)
 }
+
+func (s *VideoServer) GetCountById(ctx context.Context, in *video.GetCountByIdRequest) (*video.GetCountByIdResponse, error) {
+	l := logic.NewGetCountByIdLogic(ctx, s.svcCtx)
+	return l.GetCountById(in)
+}

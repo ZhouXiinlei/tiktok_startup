@@ -31,6 +31,7 @@ const (
 	Video_GetCommentList_FullMethodName       = "/video.Video/GetCommentList"
 	Video_DeleteComment_FullMethodName        = "/video.Video/DeleteComment"
 	Video_GetCommentById_FullMethodName       = "/video.Video/GetCommentById"
+	Video_GetCountById_FullMethodName         = "/video.Video/GetCountById"
 )
 
 // VideoClient is the client API for Video service.
@@ -49,6 +50,7 @@ type VideoClient interface {
 	GetCommentList(ctx context.Context, in *GetCommentListRequest, opts ...grpc.CallOption) (*GetCommentListResponse, error)
 	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Empty, error)
 	GetCommentById(ctx context.Context, in *GetCommentByIdRequest, opts ...grpc.CallOption) (*GetCommentByIdResponse, error)
+	GetCountById(ctx context.Context, in *GetCountByIdRequest, opts ...grpc.CallOption) (*GetCountByIdResponse, error)
 }
 
 type videoClient struct {
@@ -167,6 +169,15 @@ func (c *videoClient) GetCommentById(ctx context.Context, in *GetCommentByIdRequ
 	return out, nil
 }
 
+func (c *videoClient) GetCountById(ctx context.Context, in *GetCountByIdRequest, opts ...grpc.CallOption) (*GetCountByIdResponse, error) {
+	out := new(GetCountByIdResponse)
+	err := c.cc.Invoke(ctx, Video_GetCountById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VideoServer is the server API for Video service.
 // All implementations must embed UnimplementedVideoServer
 // for forward compatibility
@@ -183,6 +194,7 @@ type VideoServer interface {
 	GetCommentList(context.Context, *GetCommentListRequest) (*GetCommentListResponse, error)
 	DeleteComment(context.Context, *DeleteCommentRequest) (*Empty, error)
 	GetCommentById(context.Context, *GetCommentByIdRequest) (*GetCommentByIdResponse, error)
+	GetCountById(context.Context, *GetCountByIdRequest) (*GetCountByIdResponse, error)
 	mustEmbedUnimplementedVideoServer()
 }
 
@@ -225,6 +237,9 @@ func (UnimplementedVideoServer) DeleteComment(context.Context, *DeleteCommentReq
 }
 func (UnimplementedVideoServer) GetCommentById(context.Context, *GetCommentByIdRequest) (*GetCommentByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentById not implemented")
+}
+func (UnimplementedVideoServer) GetCountById(context.Context, *GetCountByIdRequest) (*GetCountByIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCountById not implemented")
 }
 func (UnimplementedVideoServer) mustEmbedUnimplementedVideoServer() {}
 
@@ -455,6 +470,24 @@ func _Video_GetCommentById_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Video_GetCountById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCountByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoServer).GetCountById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Video_GetCountById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoServer).GetCountById(ctx, req.(*GetCountByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Video_ServiceDesc is the grpc.ServiceDesc for Video service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -509,6 +542,10 @@ var Video_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCommentById",
 			Handler:    _Video_GetCommentById_Handler,
+		},
+		{
+			MethodName: "GetCountById",
+			Handler:    _Video_GetCountById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

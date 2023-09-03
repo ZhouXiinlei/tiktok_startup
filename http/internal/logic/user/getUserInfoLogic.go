@@ -10,6 +10,7 @@ import (
 	"tikstart/http/internal/types"
 	"tikstart/http/schema"
 	"tikstart/rpc/user/user"
+	"tikstart/rpc/video/video"
 )
 
 type GetUserInfoLogic struct {
@@ -53,18 +54,23 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 		st, _ := status.FromError(err)
 		return nil, utils.ReturnInternalError(st, err)
 	}
-
+	CountInfo, err := l.svcCtx.VideoRpc.GetCountById(l.ctx, &video.GetCountByIdRequest{
+		UserId: targetId,
+	})
 	return &types.GetUserInfoResponse{
 		BasicResponse: types.BasicResponse{
 			StatusCode: 0,
 			StatusMsg:  "",
 		},
 		User: types.User{
-			Id:            userResp.UserId,
-			Name:          userResp.Username,
-			IsFollow:      isFollowResp.IsFollow,
-			FollowCount:   userResp.FollowingCount,
-			FollowerCount: userResp.FollowerCount,
+			Id:             userResp.UserId,
+			Name:           userResp.Username,
+			IsFollow:       isFollowResp.IsFollow,
+			FollowCount:    userResp.FollowingCount,
+			FollowerCount:  userResp.FollowerCount,
+			TotalFavorited: CountInfo.TotalFavorited,
+			FavoriteCount:  CountInfo.UserFavoriteCount,
+			WorkCount:      CountInfo.WorkCount,
 		},
 	}, nil
 }
