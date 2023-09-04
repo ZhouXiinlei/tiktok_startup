@@ -50,7 +50,12 @@ func (l *GetVideoListLogic) GetVideoList(in *video.GetVideoListRequest) (*video.
 			CreateTime:    v.CreatedAt.Unix(),
 		})
 	}
+	var nextTime int64 = 0
+	if len(videoList) != 0 {
+		nextTime = videoList[len(videoList)-1].CreateTime
+	}
 	return &video.GetVideoListResponse{
 		VideoList: videoList,
+		NextTime:  nextTime,
 	}, nil
 }

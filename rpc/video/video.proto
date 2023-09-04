@@ -50,6 +50,7 @@ message GetVideoListRequest {
 
 message GetVideoListResponse {
   repeated VideoInfo VideoList = 1;
+  int64 NextTime = 2;
 }
 //发布视频
 message PublishVideoRequest {

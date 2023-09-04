@@ -46,12 +46,6 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
 
-	// TODO: 直接让RPC返回NextTime
-	var nextTime int64 = 0
-	if len(videoListRes.VideoList) != 0 {
-		nextTime = videoListRes.VideoList[len(videoListRes.VideoList)-1].CreateTime
-	}
-
 	// 补充视频信息
 	videoList := make([]types.Video, 0, len(videoListRes.VideoList))
 	for _, v := range videoListRes.VideoList {
@@ -111,6 +105,6 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 			StatusMsg:  "Success",
 		},
 		VideoList: videoList,
-		NextTime:  nextTime,
+		NextTime:  videoListRes.NextTime,
 	}, nil
 }
