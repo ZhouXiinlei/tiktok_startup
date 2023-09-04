@@ -19,7 +19,7 @@ Apifox文档：[Tik-Start API](https://apifox.com/apidoc/shared-8f2e87c0-89ba-4c
 
 ## 背景
 
-`TikTok_Startup`项目是第六届字节青训营后端基础班的结营大项目，由来自杭州电子科技大学以及西安交通大学的学生团队`抖音，启动`开发。
+`TikTok_Startup`项目是第六届字节青训营后端基础班的结营大项目，由学生团队`抖音，启动`开发。
 
 ## 启动服务
 
