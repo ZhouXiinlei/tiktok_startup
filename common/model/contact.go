@@ -15,9 +15,3 @@ type Message struct {
 	UpdatedAt time.Time `gorm:"not null"`
 	DeletedAt gorm.DeletedAt
 }
-
-type Friend struct {
-	gorm.Model
-	UserId   int64 `gorm:"index"`
-	FriendId int64 `gorm:"index"`
-}

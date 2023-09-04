@@ -56,6 +56,14 @@ func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) 
 		if err != nil {
 			return utils.InternalWithDetails("error reducing follower_count", err)
 		}
+
+		// update friend relation
+		idA, idB := utils.SortId(in.UserId, in.TargetId)
+		err = l.svcCtx.DB.Where("user_a_id = ? AND user_b_id = ?", idA, idB).Delete(&model.Friend{}).Error
+		if err != nil {
+			return utils.InternalWithDetails("err deleting friend relation", err)
+		}
+
 		return nil
 	})
 

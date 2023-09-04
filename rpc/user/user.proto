@@ -33,9 +33,6 @@ message QueryResponse {
   string username = 2;
   int64 following_count = 3;
   int64 follower_count = 4;
-  //  string avatar = 6;
-  //  string background_image = 7;
-  //  string signature = 8;
   bytes password = 12;
   int64 created_at = 15;
   int64 updated_at = 16;
@@ -88,6 +85,14 @@ message IsFollowResponse{
   bool is_follow = 1;
 }
 
+message GetFriendListRequest {
+  int64 UserId = 1;
+}
+
+message GetFriendListResponse {
+  repeated UserInfo FriendList = 1;
+}
+
 service User {
   rpc Ping(PingRequest) returns(PingResponse);
   rpc Create(CreateRequest) returns(CreateResponse);
@@ -98,4 +103,5 @@ service User {
   rpc GetFollowerList(GetFollowerListRequest) returns(GetFollowerListResponse);
   rpc GetFollowingList(GetFollowingListRequest) returns(GetFollowingListResponse);
   rpc IsFollow(IsFollowRequest) returns(IsFollowResponse);
+  rpc GetFriendList(GetFriendListRequest) returns(GetFriendListResponse);
 }

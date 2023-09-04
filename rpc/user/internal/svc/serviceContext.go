@@ -26,7 +26,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&model.User{}, &model.Follow{})
+	err = db.AutoMigrate(&model.User{}, &model.Follow{}, &model.Friend{})
 	if err != nil {
 		panic(err)
 	}

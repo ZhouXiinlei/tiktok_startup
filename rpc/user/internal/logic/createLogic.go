@@ -53,7 +53,7 @@ func (l *CreateLogic) Create(in *user.CreateRequest) (*user.CreateResponse, erro
 
 	err = l.svcCtx.DB.Create(newUser).Error
 	if err != nil {
-		st, _ := status.New(codes.Internal, "error creating user record").WithDetails(
+		st, _ := status.New(codes.Internal, "error creating User record").WithDetails(
 			&any.Any{
 				Value: []byte(err.Error()),
 			})

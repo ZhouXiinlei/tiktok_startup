@@ -26,7 +26,7 @@ func NewFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FollowLogi
 }
 
 func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
-	// api should check user existence first, this interface doesn't
+	// api should check User existence first, this interface doesn't
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		var count int64
 		err := tx.
@@ -69,6 +69,23 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 			Error
 		if err != nil {
 			return utils.InternalWithDetails("error adding follower_count", err)
+		}
+
+		// check friend relation
+		count = 0
+		err = l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.TargetId, in.UserId).Count(&count).Error
+		if err != nil {
+			return utils.InternalWithDetails("error querying friend record", err)
+		}
+		if count > 0 {
+			idA, idB := utils.SortId(in.UserId, in.TargetId)
+			err = tx.Create(&model.Friend{
+				UserAId: idA,
+				UserBId: idB,
+			}).Error
+			if err != nil {
+				return utils.InternalWithDetails("error creating friend record", err)
+			}
 		}
 		return nil
 	})

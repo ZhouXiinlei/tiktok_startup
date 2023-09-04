@@ -43,6 +43,8 @@ func errHandler(err error) (int, interface{}) {
 		return e.StatusCode, e.Response()
 	default:
 		fmt.Printf("Internal Server Error: %s\n", e)
+		fmt.Printf("Type of error: %T\n", e)
+
 		return http.StatusInternalServerError, &types.BasicResponse{
 			StatusCode: 50000,
 			StatusMsg:  "Internal Server Error",
