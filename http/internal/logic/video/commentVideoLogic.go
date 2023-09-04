@@ -56,7 +56,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 		var comment types.Comment
 
 		err := mr.Finish(func() (err error) {
-			createResp, err := l.svcCtx.VideoRpc.CreateComment(l.ctx, &videoClient.CreateCommentRequest{
+			createResp, err := l.svcCtx.VideoRpc.CreateComment(l.ctx, &videoclient.CreateCommentRequest{
 				UserId:  userClaims.UserId,
 				VideoId: req.VideoId,
 				Content: commentText,
@@ -109,7 +109,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			Comment: comment,
 		}, nil
 	case Delete:
-		commentInfo, err := l.svcCtx.VideoRpc.GetCommentById(l.ctx, &videoClient.GetCommentByIdRequest{
+		commentInfo, err := l.svcCtx.VideoRpc.GetCommentById(l.ctx, &videoclient.GetCommentByIdRequest{
 			CommentId: req.CommentId,
 		})
 		if err != nil {
@@ -133,7 +133,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			}
 		}
 
-		if _, err = l.svcCtx.VideoRpc.DeleteComment(l.ctx, &videoClient.DeleteCommentRequest{
+		if _, err = l.svcCtx.VideoRpc.DeleteComment(l.ctx, &videoclient.DeleteCommentRequest{
 			CommentId: req.CommentId,
 		}); err != nil {
 			logx.WithContext(l.ctx).Errorf("删除评论失败: %s", err.Error())

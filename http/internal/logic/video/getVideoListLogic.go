@@ -38,7 +38,7 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		latestTime = req.LatestTime / 1000
 	}
 
-	videoListRes, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoClient.GetVideoListRequest{
+	videoListRes, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoclient.GetVideoListRequest{
 		Num:        20,
 		LatestTime: latestTime,
 	})
@@ -65,7 +65,7 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		//获取视频收藏状态
 		isFavorite := false
 		if userId != 0 {
-			isFavoriteVideoRes, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
+			isFavoriteVideoRes, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoclient.IsFavoriteVideoRequest{
 				UserId:  userId,
 				VideoId: v.Id,
 			})

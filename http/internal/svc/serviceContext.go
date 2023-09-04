@@ -15,7 +15,7 @@ import (
 type ServiceContext struct {
 	Config           config.Config
 	UserRpc          userClient.User
-	VideoRpc         videoClient.Video
+	VideoRpc         videoclient.Video
 	ContactRpc       contactClient.Contact
 	JwtAuth          rest.Middleware
 	TengxunyunClient *cos.Client
@@ -25,7 +25,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:           c,
 		UserRpc:          userClient.NewUser(zrpc.MustNewClient(c.UserRpc)),
-		VideoRpc:         videoClient.NewVideo(zrpc.MustNewClient(c.VideoRpc)),
+		VideoRpc:         videoclient.NewVideo(zrpc.MustNewClient(c.VideoRpc)),
 		ContactRpc:       contactClient.NewContact(zrpc.MustNewClient(c.ContactRpc)),
 		TengxunyunClient: tikcos.TengxunyunInit(c.COS),
 		JwtAuth:          middleware.NewJwtAuthMiddleware(c).Handle,
