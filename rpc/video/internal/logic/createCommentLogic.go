@@ -4,6 +4,7 @@ import (
 	"context"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 
@@ -35,6 +36,15 @@ func (l *CreateCommentLogic) CreateComment(in *video.CreateCommentRequest) (*vid
 	}
 
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
+		var count int64
+		err := tx.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Count(&count).Error
+		if err != nil {
+			return utils.InternalWithDetails("error querying video count", err)
+		}
+		if count == 0 {
+			return common.ErrVideoNotFound.Err()
+		}
+
 		if err := tx.Create(&comment).Error; err != nil {
 			return utils.InternalWithDetails("error creating comment", err)
 		}

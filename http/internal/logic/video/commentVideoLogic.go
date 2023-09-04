@@ -5,6 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 	"google.golang.org/grpc/status"
+	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
@@ -47,8 +48,16 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 				Content: req.CommentText,
 			})
 			if err != nil {
-				logx.WithContext(l.ctx).Errorf("创建评论失败: %s", err.Error())
-				return utils.ReturnInternalError(status.Convert(err), err)
+				if st, match := utils.MatchError(err, common.ErrVideoNotFound); match {
+					return schema.ApiError{
+						StatusCode: 422,
+						Code:       42209,
+						Message:    "视频不存在",
+					}
+				} else {
+					logx.WithContext(l.ctx).Errorf("创建评论失败: %s", err.Error())
+					return utils.ReturnInternalError(st, err)
+				}
 			}
 
 			comment.Content = createResp.Content
@@ -90,8 +99,16 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			CommentId: req.CommentId,
 		})
 		if err != nil {
-			logx.WithContext(l.ctx).Errorf("获取评论信息失败: %s", err.Error())
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			if st, match := utils.MatchError(err, common.ErrCommentNotFound); match {
+				return nil, schema.ApiError{
+					StatusCode: 422,
+					Code:       42210,
+					Message:    "评论不存在",
+				}
+			} else {
+				logx.WithContext(l.ctx).Errorf("获取评论信息失败: %s", err.Error())
+				return nil, utils.ReturnInternalError(st, err)
+			}
 		}
 
 		if commentInfo.UserId != userClaims.UserId {
