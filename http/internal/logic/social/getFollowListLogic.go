@@ -24,6 +24,7 @@ func NewGetFollowListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetFollowListLogic) GetFollowList(req *types.GetFollowListRequest) (resp *types.GetFollowListResponse, err error) {
+	// TODO: 将mapreduce移动到rpc部分
 	GetFollowListData, err := l.svcCtx.UserRpc.GetFollowingList(l.ctx, &user.GetFollowingListRequest{
 		UserId: req.UserId,
 	})
