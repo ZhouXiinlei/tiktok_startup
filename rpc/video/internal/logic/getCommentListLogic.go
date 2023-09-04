@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
@@ -24,6 +25,15 @@ func NewGetCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetCommentListLogic) GetCommentList(in *video.GetCommentListRequest) (*video.GetCommentListResponse, error) {
+	var count int64
+	err := l.svcCtx.DB.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Count(&count).Error
+	if err != nil {
+		return nil, utils.InternalWithDetails("err querying video info", err)
+	}
+	if count == 0 {
+		return nil, common.ErrVideoNotFound.Err()
+	}
+
 	var comments []*model.Comment
 	if err := l.svcCtx.DB.
 		Where("video_id = ?", in.VideoId).

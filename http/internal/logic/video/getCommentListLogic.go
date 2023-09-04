@@ -5,9 +5,11 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 	"google.golang.org/grpc/status"
+	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
+	"tikstart/http/schema"
 	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/video"
 	"tikstart/rpc/video/videoClient"
@@ -37,7 +39,15 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 		VideoId: req.VideoId,
 	})
 	if err != nil {
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
+		if st, match := utils.MatchError(err, common.ErrVideoNotFound); match {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42211,
+				Message:    "视频不存在",
+			}
+		} else {
+			return nil, utils.ReturnInternalError(st, err)
+		}
 	}
 
 	order := make(map[int]int, len(commentListRes.CommentList))
