@@ -5,6 +5,8 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 	"google.golang.org/grpc/status"
+	"regexp"
+	"strings"
 	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
@@ -39,13 +41,25 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 
 	switch req.ActionType {
 	case Publish:
+		regPattern := regexp.MustCompile("\\s+")
+		commentText := regPattern.ReplaceAllString(req.CommentText, "")
+		commentText = strings.Trim(commentText, " ")
+
+		if commentText == "" {
+			return nil, schema.ApiError{
+				StatusCode: 422,
+				Code:       42208,
+				Message:    "评论内容不能为空",
+			}
+		}
+
 		var comment types.Comment
 
 		err := mr.Finish(func() (err error) {
 			createResp, err := l.svcCtx.VideoRpc.CreateComment(l.ctx, &videoClient.CreateCommentRequest{
 				UserId:  userClaims.UserId,
 				VideoId: req.VideoId,
-				Content: req.CommentText,
+				Content: commentText,
 			})
 			if err != nil {
 				if st, match := utils.MatchError(err, common.ErrVideoNotFound); match {
