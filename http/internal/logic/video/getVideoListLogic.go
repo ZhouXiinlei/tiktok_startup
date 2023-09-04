@@ -9,6 +9,7 @@ import (
 	"tikstart/http/internal/types"
 	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/videoClient"
+	"time"
 )
 
 type GetVideoListLogic struct {
@@ -32,14 +33,14 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		userId = userClaims.UserId
 	}
 
-	//latestTime := time.Now().Unix()
-	//if req.LatestTime != 0 {
-	//    latestTime = req.LatestTime / 1000
-	//}
+	latestTime := time.Now().Unix()
+	if req.LatestTime != 0 {
+		latestTime = req.LatestTime / 1000
+	}
 
 	videoListRes, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoClient.GetVideoListRequest{
 		Num:        20,
-		LatestTime: 1693739019,
+		LatestTime: latestTime,
 	})
 	if err != nil {
 		return nil, utils.ReturnInternalError(status.Convert(err), err)
