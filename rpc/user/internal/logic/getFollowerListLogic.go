@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/mr"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/user/internal/svc"
@@ -36,24 +37,41 @@ func (l *GetFollowerListLogic) GetFollowerList(in *user.GetFollowerListRequest) 
 		return nil, utils.InternalWithDetails("error querying follower list", err)
 	}
 
-	followerList := make([]*user.UserInfo, 0, len(userList))
-	for _, follower := range userList {
+	order := make(map[int]int, len(userList))
+
+	followerList, err := mr.MapReduce(func(source chan<- *model.User) {
+		for i, follower := range userList {
+			source <- follower
+			order[int(follower.UserId)] = i
+		}
+	}, func(item *model.User, writer mr.Writer[*user.UserInfo], cancel func(error)) {
 		var count int64
-		err := l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.UserId, follower.UserId).Count(&count).Error
+		err := l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.UserId, item.UserId).Count(&count).Error
 		if err != nil {
-			return nil, utils.InternalWithDetails("error querying follow relation", err)
+			cancel(utils.InternalWithDetails("error querying follow relation", err))
+			return
 		}
 
-		followerList = append(followerList, &user.UserInfo{
-			UserId:         follower.UserId,
-			Username:       follower.Username,
-			FollowingCount: follower.FollowingCount,
-			FollowerCount:  follower.FollowerCount,
-			CreatedAt:      follower.CreatedAt.Unix(),
-			UpdatedAt:      follower.UpdatedAt.Unix(),
+		writer.Write(&user.UserInfo{
+			UserId:         item.UserId,
+			Username:       item.Username,
+			FollowingCount: item.FollowingCount,
+			FollowerCount:  item.FollowerCount,
+			CreatedAt:      item.CreatedAt.Unix(),
+			UpdatedAt:      item.UpdatedAt.Unix(),
 			IsFollow:       count == 1,
 		})
-	}
+
+	}, func(pipe <-chan *user.UserInfo, writer mr.Writer[[]*user.UserInfo], cancel func(error)) {
+		list := make([]*user.UserInfo, len(userList))
+		for item := range pipe {
+			userInfo := item
+			i, _ := order[int(item.UserId)]
+			list[i] = userInfo
+		}
+		writer.Write(list)
+	})
+
 	return &user.GetFollowerListResponse{
 		FollowerList: followerList,
 	}, nil
