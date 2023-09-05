@@ -6,16 +6,16 @@ func GenFollowKey(userId int64, targetId int64) string {
 	return fmt.Sprintf("follow_%d_%d", userId, targetId)
 }
 
-func GenFollowingCountKey(userId int64) string {
-	return fmt.Sprintf("following_count_%d", userId)
+func GenPopularUsersKey() string {
+	return "popular_users"
 }
 
-func GenFollowerCountKey(userId int64) string {
-	return fmt.Sprintf("follower_count_%d", userId)
+func GenUserCountsKey(topic string) string {
+	return fmt.Sprintf("user_%ss", topic)
 }
 
-func GenUserInfoKey(userId int64) string {
-	return fmt.Sprintf("user_info_%d", userId)
+func GenUserHeatKey(userId int64) string {
+	return fmt.Sprintf("user_heat_%d", userId)
 }
 
 func YesOrNo(cond bool) string {
