@@ -32,12 +32,12 @@ func (s *UserServer) Create(ctx context.Context, in *user.CreateRequest) (*user.
 	return l.Create(in)
 }
 
-func (s *UserServer) QueryById(ctx context.Context, in *user.QueryByIdRequest) (*user.QueryResponse, error) {
+func (s *UserServer) QueryById(ctx context.Context, in *user.QueryByIdRequest) (*user.UserInfo, error) {
 	l := logic.NewQueryByIdLogic(ctx, s.svcCtx)
 	return l.QueryById(in)
 }
 
-func (s *UserServer) QueryByName(ctx context.Context, in *user.QueryByNameRequest) (*user.QueryResponse, error) {
+func (s *UserServer) QueryByName(ctx context.Context, in *user.QueryByNameRequest) (*user.UserInfo, error) {
 	l := logic.NewQueryByNameLogic(ctx, s.svcCtx)
 	return l.QueryByName(in)
 }
