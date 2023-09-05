@@ -2,6 +2,14 @@ Name: video.rpc
 ListenOn: 0.0.0.0:8081
 Mode: dev
 
+Middlewares:
+  Metrics: true
+Telemetry:
+  Name: video.rpc
+  Endpoint: http://172.16.3.120:14268/api/traces
+  Batcher: jaeger
+  Sampler: 1.0
+
 #MySQL:
 #  Host: ts.dn11.top
 #  Port: 33066
