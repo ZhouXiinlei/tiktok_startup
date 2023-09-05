@@ -71,3 +71,13 @@ func (s *UserServer) GetFriendList(ctx context.Context, in *user.GetFriendListRe
 	l := logic.NewGetFriendListLogic(ctx, s.svcCtx)
 	return l.GetFriendList(in)
 }
+
+func (s *UserServer) ModFavorite(ctx context.Context, in *user.ModFavoriteRequest) (*user.Empty, error) {
+	l := logic.NewModFavoriteLogic(ctx, s.svcCtx)
+	return l.ModFavorite(in)
+}
+
+func (s *UserServer) ModWorkCount(ctx context.Context, in *user.ModWorkCountRequest) (*user.Empty, error) {
+	l := logic.NewModWorkCountLogic(ctx, s.svcCtx)
+	return l.ModWorkCount(in)
+}

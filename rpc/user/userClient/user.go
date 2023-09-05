@@ -25,6 +25,8 @@ type (
 	GetFriendListResponse    = user.GetFriendListResponse
 	IsFollowRequest          = user.IsFollowRequest
 	IsFollowResponse         = user.IsFollowResponse
+	ModFavoriteRequest       = user.ModFavoriteRequest
+	ModWorkCountRequest      = user.ModWorkCountRequest
 	PingRequest              = user.PingRequest
 	PingResponse             = user.PingResponse
 	QueryByIdRequest         = user.QueryByIdRequest
@@ -44,6 +46,8 @@ type (
 		GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error)
 		IsFollow(ctx context.Context, in *IsFollowRequest, opts ...grpc.CallOption) (*IsFollowResponse, error)
 		GetFriendList(ctx context.Context, in *GetFriendListRequest, opts ...grpc.CallOption) (*GetFriendListResponse, error)
+		ModFavorite(ctx context.Context, in *ModFavoriteRequest, opts ...grpc.CallOption) (*Empty, error)
+		ModWorkCount(ctx context.Context, in *ModWorkCountRequest, opts ...grpc.CallOption) (*Empty, error)
 	}
 
 	defaultUser struct {
@@ -105,4 +109,14 @@ func (m *defaultUser) IsFollow(ctx context.Context, in *IsFollowRequest, opts ..
 func (m *defaultUser) GetFriendList(ctx context.Context, in *GetFriendListRequest, opts ...grpc.CallOption) (*GetFriendListResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.GetFriendList(ctx, in, opts...)
+}
+
+func (m *defaultUser) ModFavorite(ctx context.Context, in *ModFavoriteRequest, opts ...grpc.CallOption) (*Empty, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.ModFavorite(ctx, in, opts...)
+}
+
+func (m *defaultUser) ModWorkCount(ctx context.Context, in *ModWorkCountRequest, opts ...grpc.CallOption) (*Empty, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.ModWorkCount(ctx, in, opts...)
 }
