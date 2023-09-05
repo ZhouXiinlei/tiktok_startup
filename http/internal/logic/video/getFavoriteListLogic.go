@@ -32,7 +32,7 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 
 	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	favoriteListRes, err := l.svcCtx.VideoRpc.GetFavoriteVideoList(l.ctx, &videoclient.GetFavoriteVideoListRequest{
+	favoriteListRes, err := l.svcCtx.VideoRpc.GetFavoriteVideoList(l.ctx, &videoClient.GetFavoriteVideoListRequest{
 		UserId: userClaims.UserId,
 	})
 	if err != nil {

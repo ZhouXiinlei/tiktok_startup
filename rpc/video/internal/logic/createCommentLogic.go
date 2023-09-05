@@ -3,10 +3,10 @@ package logic
 import (
 	"context"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/video/internal/cache"
 
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
@@ -49,21 +49,16 @@ func (l *CreateCommentLogic) CreateComment(in *video.CreateCommentRequest) (*vid
 			return utils.InternalWithDetails("error creating comment", err)
 		}
 
-		if err := tx.Model(&model.Video{}).
-			Where("video_id = ?", in.VideoId).
-			Clauses(clause.Locking{Strength: "UPDATE"}).
-			Update("comment_count", gorm.Expr("comment_count + ?", 1)).
-			Error; err != nil {
-			return utils.InternalWithDetails("error updating comment count", err)
-		}
-
 		return nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
-
+	err = cache.ModifyVideoCounts(l.svcCtx.DB, l.svcCtx.RDS, in.VideoId, "comment_count", 1)
+	if err != nil {
+		return nil, utils.InternalWithDetails("error adding comment_count", err)
+	}
 	return &video.CreateCommentResponse{
 		CommentId:   comment.CommentId,
 		UserId:      comment.UserId,

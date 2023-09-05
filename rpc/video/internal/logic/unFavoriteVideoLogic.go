@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/user/userClient"
+	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -34,15 +35,26 @@ func (l *UnFavoriteVideoLogic) UnFavoriteVideo(in *video.UnFavoriteVideoRequest)
 		if res.RowsAffected == 0 {
 			return nil
 		}
-
-		err := tx.
-			Clauses(clause.Locking{Strength: "UPDATE"}).
-			Model(&model.Video{}).
-			Where("video_id = ?", in.VideoId).
-			Update("favorite_count", gorm.Expr("favorite_count - ?", 1)).
-			Error
+		err := l.svcCtx.RDS.Set(cache.GenFavoriteKey(in.UserId, in.VideoId), "no")
 		if err != nil {
-			return utils.InternalWithDetails("error reducing favorite_count", err)
+			return utils.InternalWithDetails("(redis)error updating favorite relation", err)
+		}
+		err = cache.ModifyVideoCounts(l.svcCtx.DB, l.svcCtx.RDS, in.VideoId, "favorite_count", -1)
+		if err != nil {
+			return utils.InternalWithDetails("error adding favorite_count", err)
+		}
+		var targetId int64 = 0
+		err = l.svcCtx.DB.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Select("author_id").First(&targetId).Error
+		if err != nil {
+			return utils.InternalWithDetails("error querying video_author record", err)
+		}
+		_, err = l.svcCtx.UserRpc.ModFavorite(l.ctx, &userClient.ModFavoriteRequest{
+			UserId:   in.UserId,
+			TargetId: targetId,
+			Delta:    -1,
+		})
+		if err != nil {
+			return utils.InternalWithDetails("error updating user_favorite_count", err)
 		}
 		return nil
 	})

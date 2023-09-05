@@ -2,17 +2,22 @@ package svc
 
 import (
 	"fmt"
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"tikstart/common/model"
+	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/internal/config"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	DB     *gorm.DB
+	Config  config.Config
+	DB      *gorm.DB
+	RDS     *redis.Redis
+	UserRpc userClient.User
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -23,6 +28,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		},
 		Logger: logger.Default.LogMode(logger.Info),
 	})
+	rds := redis.MustNewRedis(c.Redis.RedisConf)
 	if err != nil {
 		panic(err)
 	}
@@ -32,8 +38,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	return &ServiceContext{
-		Config: c,
-		DB:     db,
+		Config:  c,
+		DB:      db,
+		RDS:     rds,
+		UserRpc: userClient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 	}
 }
 

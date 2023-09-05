@@ -36,7 +36,7 @@ func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.Favori
 
 	switch req.ActionType {
 	case Favorite:
-		if _, err = l.svcCtx.VideoRpc.FavoriteVideo(l.ctx, &videoclient.FavoriteVideoRequest{
+		if _, err = l.svcCtx.VideoRpc.FavoriteVideo(l.ctx, &videoClient.FavoriteVideoRequest{
 			UserId:  userClaims.UserId,
 			VideoId: req.VideoId,
 		}); err != nil {
@@ -51,7 +51,7 @@ func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.Favori
 			}
 		}
 	case UnFavorite:
-		if _, err = l.svcCtx.VideoRpc.UnFavoriteVideo(l.ctx, &videoclient.UnFavoriteVideoRequest{
+		if _, err = l.svcCtx.VideoRpc.UnFavoriteVideo(l.ctx, &videoClient.UnFavoriteVideoRequest{
 			UserId:  userClaims.UserId,
 			VideoId: req.VideoId,
 		}); err != nil {

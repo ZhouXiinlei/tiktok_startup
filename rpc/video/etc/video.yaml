@@ -1,7 +1,6 @@
 Name: video.rpc
 ListenOn: 0.0.0.0:8081
 Mode: dev
-
 #MySQL:
 #  Host: ts.dn11.top
 #  Port: 33066
@@ -17,3 +16,13 @@ MySQL:
   Password: SXFsvsxegJ4PtI84MR
   Database: tikstart
   TablePrefix: ""
+Redis:
+  Host: irain.cc:9737
+  Type: node
+  Pass: SXFsvsxegJ4PtI84MR
+  Tls: true
+  key: ""
+UserRpc:
+  Endpoints:
+    - 127.0.0.1:8080
+  NonBlock: true

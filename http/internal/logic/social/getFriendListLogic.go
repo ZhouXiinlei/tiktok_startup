@@ -2,6 +2,7 @@ package social
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/status"
 	"tikstart/common"
 	"tikstart/common/utils"
@@ -9,9 +10,6 @@ import (
 	"tikstart/http/internal/types"
 	"tikstart/http/schema"
 	"tikstart/rpc/user/user"
-	"tikstart/rpc/video/video"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetFriendListLogic struct {
@@ -48,23 +46,23 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 
 	userList := make([]types.User, 0, len(friendListRes.FriendList))
 	for _, friend := range friendListRes.FriendList {
-		countRes, err := l.svcCtx.VideoRpc.GetCountById(l.ctx, &video.GetCountByIdRequest{
-			UserId: friend.UserId,
-		})
+		//countRes, err := l.svcCtx.VideoRpc.GetCountById(l.ctx, &video.GetCountByIdRequest{
+		//	UserId: friend.UserId,
+		//})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取用户视频统计数据失败: %v", err)
 			return nil, utils.ReturnInternalError(status.Convert(err), err)
 		}
 
 		userList = append(userList, types.User{
-			Id:             friend.UserId,
-			Name:           friend.Username,
-			FollowCount:    friend.FollowingCount,
-			FollowerCount:  friend.FollowerCount,
-			IsFollow:       friend.IsFollow,
-			TotalFavorited: countRes.TotalFavorited,
-			WorkCount:      countRes.WorkCount,
-			FavoriteCount:  countRes.UserFavoriteCount,
+			Id:            friend.UserId,
+			Name:          friend.Username,
+			FollowCount:   friend.FollowingCount,
+			FollowerCount: friend.FollowerCount,
+			IsFollow:      friend.IsFollow,
+			//TotalFavorited: countRes.TotalFavorited,
+			//WorkCount:      countRes.WorkCount,
+			//FavoriteCount:  countRes.UserFavoriteCount,
 		})
 	}
 
