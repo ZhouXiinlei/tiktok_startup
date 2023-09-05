@@ -58,7 +58,7 @@ func (l *FavoriteVideoLogic) FavoriteVideo(in *video.FavoriteVideoRequest) (*vid
 		if err != nil {
 			return utils.InternalWithDetails("(redis)error updating favorite relation", err)
 		}
-		err = cache.ModifyVideoCounts(l.svcCtx.DB, l.svcCtx.RDS, in.VideoId, "favorite_count", 1)
+		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "favorite_count", 1)
 		if err != nil {
 			return utils.InternalWithDetails("error adding favorite_count", err)
 		}

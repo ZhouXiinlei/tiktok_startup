@@ -39,9 +39,9 @@ func (l *UnFavoriteVideoLogic) UnFavoriteVideo(in *video.UnFavoriteVideoRequest)
 		if err != nil {
 			return utils.InternalWithDetails("(redis)error updating favorite relation", err)
 		}
-		err = cache.ModifyVideoCounts(l.svcCtx.DB, l.svcCtx.RDS, in.VideoId, "favorite_count", -1)
+		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "favorite_count", -1)
 		if err != nil {
-			return utils.InternalWithDetails("error adding favorite_count", err)
+			return utils.InternalWithDetails("error deleting favorite_count", err)
 		}
 		var targetId int64 = 0
 		err = tx.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Select("author_id").First(&targetId).Error

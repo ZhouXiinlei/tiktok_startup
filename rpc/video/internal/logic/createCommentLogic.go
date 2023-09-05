@@ -49,15 +49,15 @@ func (l *CreateCommentLogic) CreateComment(in *video.CreateCommentRequest) (*vid
 			return utils.InternalWithDetails("error creating comment", err)
 		}
 
+		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "comment_count", 1)
+		if err != nil {
+			return utils.InternalWithDetails("error adding comment_count", err)
+		}
 		return nil
 	})
 
 	if err != nil {
 		return nil, err
-	}
-	err = cache.ModifyVideoCounts(l.svcCtx.DB, l.svcCtx.RDS, in.VideoId, "comment_count", 1)
-	if err != nil {
-		return nil, utils.InternalWithDetails("error adding comment_count", err)
 	}
 	return &video.CreateCommentResponse{
 		CommentId:   comment.CommentId,
