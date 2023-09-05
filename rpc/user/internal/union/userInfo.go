@@ -1,12 +1,12 @@
 package union
 
 import (
+	"github.com/zeromicro/go-zero/core/mr"
 	"github.com/zeromicro/go-zero/core/stores/redis"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"tikstart/common"
 	"tikstart/common/model"
+	"tikstart/common/utils"
 	"tikstart/rpc/user/user"
 )
 
@@ -17,7 +17,7 @@ func GetUserInfoById(db *gorm.DB, rds *redis.Redis, userId int64) (*user.UserInf
 		if err == gorm.ErrRecordNotFound {
 			return nil, common.ErrUserNotFound.Err()
 		} else {
-			return nil, status.Error(codes.Internal, err.Error())
+			return nil, utils.InternalWithDetails("error querying user", err)
 		}
 	}
 
@@ -59,7 +59,7 @@ func GetUserInfoByName(db *gorm.DB, rds *redis.Redis, username string) (*user.Us
 		if err == gorm.ErrRecordNotFound {
 			return nil, common.ErrUserNotFound.Err()
 		} else {
-			return nil, status.Error(codes.Internal, err.Error())
+			return nil, utils.InternalWithDetails("error querying user", err)
 		}
 	}
 
@@ -92,4 +92,45 @@ func GetUserInfoByName(db *gorm.DB, rds *redis.Redis, username string) (*user.Us
 		CreatedAt:      userRecord.CreatedAt.Unix(),
 		UpdatedAt:      userRecord.UpdatedAt.Unix(),
 	}, nil
+}
+
+func GetManyUserInfos(db *gorm.DB, rds *redis.Redis, condition *gorm.DB) ([]*user.UserInfo, error) {
+	userIdList := make([]int64, 0)
+	err := db.
+		Model(&model.User{}).
+		Where("user_id in (?)", condition).
+		Select("user_id").
+		Find(&userIdList).
+		Error
+	if err != nil {
+		return nil, utils.InternalWithDetails("error querying many users", err)
+	}
+
+	order := make(map[int64]int, len(userIdList))
+	userInfoList, err := mr.MapReduce(func(source chan<- int64) {
+		for i, userId := range userIdList {
+			source <- userId
+			order[userId] = i
+		}
+	}, func(item int64, writer mr.Writer[*user.UserInfo], cancel func(error)) {
+		userInfo, err := GetUserInfoById(db, rds, item)
+		if err != nil {
+			cancel(err)
+			return
+		}
+		writer.Write(userInfo)
+	}, func(pipe <-chan *user.UserInfo, writer mr.Writer[[]*user.UserInfo], cancel func(error)) {
+		list := make([]*user.UserInfo, len(userIdList))
+		for item := range pipe {
+			userInfo := item
+			i, _ := order[item.UserId]
+			list[i] = userInfo
+		}
+		writer.Write(list)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return userInfoList, nil
 }
