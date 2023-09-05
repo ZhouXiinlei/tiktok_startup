@@ -15,7 +15,7 @@ func GetVideoInfoById(db *gorm.DB, rds *redis.Redis, videoId int64) (*video.Vide
 	err := db.Where("video_id = ?", videoId).First(&videoRecord).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, common.ErrUserNotFound.Err()
+			return nil, common.ErrVideoNotFound.Err()
 		} else {
 			return nil, status.Error(codes.Internal, err.Error())
 		}
@@ -26,10 +26,6 @@ func GetVideoInfoById(db *gorm.DB, rds *redis.Redis, videoId int64) (*video.Vide
 		return nil, err
 	}
 	FavoriteCount, err := PickVideoCounts(db, rds, videoId, "favorite_count", videoRecord.FavoriteCount)
-	if err != nil {
-		return nil, err
-	}
-
 	if err != nil {
 		return nil, err
 	}

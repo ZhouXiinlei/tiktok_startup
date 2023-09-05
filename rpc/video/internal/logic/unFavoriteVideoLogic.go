@@ -44,7 +44,7 @@ func (l *UnFavoriteVideoLogic) UnFavoriteVideo(in *video.UnFavoriteVideoRequest)
 			return utils.InternalWithDetails("error adding favorite_count", err)
 		}
 		var targetId int64 = 0
-		err = l.svcCtx.DB.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Select("author_id").First(&targetId).Error
+		err = tx.Model(&model.Video{}).Where("video_id = ?", in.VideoId).Select("author_id").First(&targetId).Error
 		if err != nil {
 			return utils.InternalWithDetails("error querying video_author record", err)
 		}
