@@ -3,9 +3,10 @@ package logic
 import (
 	"context"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/user/internal/cache"
+	"tikstart/rpc/user/internal/union"
 
 	"tikstart/rpc/user/internal/svc"
 	"tikstart/rpc/user/user"
@@ -29,32 +30,36 @@ func NewUnFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UnFollow
 
 func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) {
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
-		res := tx.Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).Delete(&model.Follow{})
-		if err := res.Error; err != nil {
-			return utils.InternalWithDetails("error deleting follow record", err)
+		res, err := union.IsFollow(tx, l.svcCtx.RDS, in.UserId, in.TargetId)
+		if err != nil {
+			return err
 		}
-		if res.RowsAffected == 0 {
+		// res == false means not following yet
+		if !res {
 			return nil
 		}
 
-		err := tx.
-			Clauses(clause.Locking{Strength: "UPDATE"}).
-			Model(&model.User{}).
-			Where("user_id = ?", in.UserId).
-			UpdateColumn("following_count", gorm.Expr("following_count - ?", 1)).
+		err = l.svcCtx.DB.
+			Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).
+			Delete(&model.Follow{}).
 			Error
 		if err != nil {
-			return utils.InternalWithDetails("error reducing following_count", err)
+			return utils.InternalWithDetails("(mysql)error deleting follow relation", err)
 		}
 
-		err = tx.
-			Clauses(clause.Locking{Strength: "UPDATE"}).
-			Model(&model.User{}).
-			Where("user_id = ?", in.TargetId).
-			UpdateColumn("follower_count", gorm.Expr("follower_count - ?", 1)).
-			Error
+		err = l.svcCtx.RDS.Set(cache.GenFollowKey(in.UserId, in.TargetId), "no")
 		if err != nil {
-			return utils.InternalWithDetails("error reducing follower_count", err)
+			return utils.InternalWithDetails("(redis)error updating follow relation", err)
+		}
+
+		// update user counts
+		err = union.ModifyUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, "following_count", -1)
+		if err != nil {
+			return err
+		}
+		err = union.ModifyUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.TargetId, "follower_count", -1)
+		if err != nil {
+			return err
 		}
 
 		// update friend relation
@@ -66,9 +71,10 @@ func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) 
 
 		return nil
 	})
-
+	// transaction end, handle error if occurred
 	if err != nil {
 		return nil, err
 	}
+
 	return &user.Empty{}, nil
 }

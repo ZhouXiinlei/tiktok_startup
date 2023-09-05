@@ -13,7 +13,7 @@ import (
 	"tikstart/rpc/user/internal/cache"
 )
 
-func PickUserCounts(rds *redis.Redis, userId int64, field string, dbCount int64) (int64, error) {
+func PickUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string, dbCount int64) (int64, error) {
 	score, err := rds.Zscore(cache.GenUserCountsKey(field), strconv.FormatInt(userId, 10))
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -22,6 +22,8 @@ func PickUserCounts(rds *redis.Redis, userId int64, field string, dbCount int64)
 			return 0, utils.InternalWithDetails("(redis)error querying cache status", err)
 		}
 	}
+
+	go ManageCache(db, rds, userId, field)
 	return score, nil
 }
 
@@ -38,7 +40,7 @@ func ModifyUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string,
 				UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s + ?", field), delta)).
 				Error
 			if err != nil {
-				return utils.InternalWithDetails("error adding user_counts", err)
+				return utils.InternalWithDetails("error modifying user_counts", err)
 			}
 		} else {
 			return utils.InternalWithDetails("(redis)error querying cache status", err)
@@ -48,7 +50,7 @@ func ModifyUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string,
 	go func() {
 		_, err = rds.Zincrby(cache.GenUserCountsKey(field), delta, strconv.FormatInt(userId, 10))
 		if err != nil {
-			logx.Errorf("(redis)error incrementing user_counts", err)
+			logx.Errorf("(redis)error modifying user_counts", err)
 		}
 	}()
 

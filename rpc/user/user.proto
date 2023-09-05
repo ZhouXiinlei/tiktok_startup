@@ -93,6 +93,17 @@ message GetFriendListResponse {
   repeated UserInfo FriendList = 1;
 }
 
+message ModFavoriteRequest {
+  int64 UserId = 1;
+  int64 TargetId = 2;
+  int64 Delta = 3;
+}
+
+message ModWorkCountRequest{
+  int64 UserId = 1;
+  int64 Delta = 2;
+}
+
 service User {
   rpc Ping(PingRequest) returns(PingResponse);
   rpc Create(CreateRequest) returns(CreateResponse);
@@ -104,4 +115,6 @@ service User {
   rpc GetFollowingList(GetFollowingListRequest) returns(GetFollowingListResponse);
   rpc IsFollow(IsFollowRequest) returns(IsFollowResponse);
   rpc GetFriendList(GetFriendListRequest) returns(GetFriendListResponse);
+  rpc ModFavorite(ModFavoriteRequest) returns(Empty);
+  rpc ModWorkCount(ModWorkCountRequest) returns(Empty);
 }

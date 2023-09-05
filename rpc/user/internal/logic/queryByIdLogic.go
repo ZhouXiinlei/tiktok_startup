@@ -40,11 +40,11 @@ func (l *QueryByIdLogic) QueryById(in *user.QueryByIdRequest) (*user.QueryRespon
 		}
 	}
 
-	followingCount, err := union.PickUserCounts(l.svcCtx.RDS, in.UserId, "following_count", userRecord.FollowingCount)
+	followingCount, err := union.PickUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, "following_count", userRecord.FollowingCount)
 	if err != nil {
 		return nil, err
 	}
-	followerCount, err := union.PickUserCounts(l.svcCtx.RDS, in.UserId, "follower_count", userRecord.FollowerCount)
+	followerCount, err := union.PickUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, "follower_count", userRecord.FollowerCount)
 	if err != nil {
 		return nil, err
 	}
