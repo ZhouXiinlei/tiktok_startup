@@ -39,8 +39,8 @@ const (
 type UserClient interface {
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*QueryResponse, error)
-	QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*QueryResponse, error)
+	QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*UserInfo, error)
+	QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*UserInfo, error)
 	Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*Empty, error)
 	UnFollow(ctx context.Context, in *UnFollowRequest, opts ...grpc.CallOption) (*Empty, error)
 	GetFollowerList(ctx context.Context, in *GetFollowerListRequest, opts ...grpc.CallOption) (*GetFollowerListResponse, error)
@@ -77,8 +77,8 @@ func (c *userClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc
 	return out, nil
 }
 
-func (c *userClient) QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*QueryResponse, error) {
-	out := new(QueryResponse)
+func (c *userClient) QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*UserInfo, error) {
+	out := new(UserInfo)
 	err := c.cc.Invoke(ctx, User_QueryById_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,8 +86,8 @@ func (c *userClient) QueryById(ctx context.Context, in *QueryByIdRequest, opts .
 	return out, nil
 }
 
-func (c *userClient) QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*QueryResponse, error) {
-	out := new(QueryResponse)
+func (c *userClient) QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*UserInfo, error) {
+	out := new(UserInfo)
 	err := c.cc.Invoke(ctx, User_QueryByName_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -173,8 +173,8 @@ func (c *userClient) ModWorkCount(ctx context.Context, in *ModWorkCountRequest, 
 type UserServer interface {
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	QueryById(context.Context, *QueryByIdRequest) (*QueryResponse, error)
-	QueryByName(context.Context, *QueryByNameRequest) (*QueryResponse, error)
+	QueryById(context.Context, *QueryByIdRequest) (*UserInfo, error)
+	QueryByName(context.Context, *QueryByNameRequest) (*UserInfo, error)
 	Follow(context.Context, *FollowRequest) (*Empty, error)
 	UnFollow(context.Context, *UnFollowRequest) (*Empty, error)
 	GetFollowerList(context.Context, *GetFollowerListRequest) (*GetFollowerListResponse, error)
@@ -196,10 +196,10 @@ func (UnimplementedUserServer) Ping(context.Context, *PingRequest) (*PingRespons
 func (UnimplementedUserServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedUserServer) QueryById(context.Context, *QueryByIdRequest) (*QueryResponse, error) {
+func (UnimplementedUserServer) QueryById(context.Context, *QueryByIdRequest) (*UserInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryById not implemented")
 }
-func (UnimplementedUserServer) QueryByName(context.Context, *QueryByNameRequest) (*QueryResponse, error) {
+func (UnimplementedUserServer) QueryByName(context.Context, *QueryByNameRequest) (*UserInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryByName not implemented")
 }
 func (UnimplementedUserServer) Follow(context.Context, *FollowRequest) (*Empty, error) {
