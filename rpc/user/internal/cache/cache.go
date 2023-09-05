@@ -24,3 +24,13 @@ func YesOrNo(cond bool) string {
 	}
 	return "no"
 }
+
+func TrueOrFalse(str string) (val bool, match bool) {
+	if str != "" {
+		if str == "yes" {
+			return true, true
+		}
+		return false, true
+	}
+	return false, false
+}
