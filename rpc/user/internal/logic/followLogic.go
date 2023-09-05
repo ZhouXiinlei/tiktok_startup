@@ -52,36 +52,37 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 			return utils.InternalWithDetails("(redis)error updating follow relation", err)
 		}
 
+		// update user counts
+		err = union.ModifyUserCounts(tx, l.svcCtx.RDS, in.UserId, "following_count", 1)
+		if err != nil {
+			return err
+		}
+		err = union.ModifyUserCounts(tx, l.svcCtx.RDS, in.TargetId, "follower_count", 1)
+		if err != nil {
+			return err
+		}
+
+		// check friend relation
+		res, err = union.IsFollow(tx, l.svcCtx.RDS, in.TargetId, in.UserId)
+		if err != nil {
+			return err
+		}
+		if res {
+			idA, idB := utils.SortId(in.UserId, in.TargetId)
+			err = l.svcCtx.DB.Create(&model.Friend{
+				UserAId: idA,
+				UserBId: idB,
+			}).Error
+			if err != nil {
+				return utils.InternalWithDetails("error creating friend record", err)
+			}
+		}
+
 		return nil
 	})
-	// transaction end, handle error and return empty
+	// transaction end, handle error if occurred
 	if err != nil {
 		return nil, err
-	}
-
-	err = union.ModifyUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, "following_count", 1)
-	if err != nil {
-		return nil, utils.InternalWithDetails("error adding following_count", err)
-	}
-	err = union.ModifyUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.TargetId, "follower_count", 1)
-	if err != nil {
-		return nil, utils.InternalWithDetails("error adding follower_count", err)
-	}
-
-	// check friend relation
-	res, err := union.IsFollow(l.svcCtx.DB, l.svcCtx.RDS, in.TargetId, in.UserId)
-	if err != nil {
-		return nil, err
-	}
-	if res {
-		idA, idB := utils.SortId(in.UserId, in.TargetId)
-		err = l.svcCtx.DB.Create(&model.Friend{
-			UserAId: idA,
-			UserBId: idB,
-		}).Error
-		if err != nil {
-			return nil, utils.InternalWithDetails("error creating friend record", err)
-		}
 	}
 
 	return &user.Empty{}, nil

@@ -38,7 +38,7 @@ func ModifyUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string,
 				UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s + ?", field), delta)).
 				Error
 			if err != nil {
-				return utils.InternalWithDetails("error adding user_counts", err)
+				return utils.InternalWithDetails("error modifying user_counts", err)
 			}
 		} else {
 			return utils.InternalWithDetails("(redis)error querying cache status", err)
@@ -48,7 +48,7 @@ func ModifyUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string,
 	go func() {
 		_, err = rds.Zincrby(cache.GenUserCountsKey(field), delta, strconv.FormatInt(userId, 10))
 		if err != nil {
-			logx.Errorf("(redis)error incrementing user_counts", err)
+			logx.Errorf("(redis)error modifying user_counts", err)
 		}
 	}()
 
