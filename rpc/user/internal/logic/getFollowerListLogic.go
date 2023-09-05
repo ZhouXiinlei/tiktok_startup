@@ -46,7 +46,7 @@ func (l *GetFollowerListLogic) GetFollowerList(in *user.GetFollowerListRequest) 
 			order[int(follower.UserId)] = i
 		}
 	}, func(item *model.User, writer mr.Writer[*user.UserInfo], cancel func(error)) {
-		res, err := union.IsFollow(l.svcCtx, in.UserId, item.UserId)
+		res, err := union.IsFollow(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, item.UserId)
 		if err != nil {
 			cancel(err)
 			return

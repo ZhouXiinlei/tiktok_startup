@@ -23,7 +23,7 @@ func NewIsFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsFollow
 }
 
 func (l *IsFollowLogic) IsFollow(in *user.IsFollowRequest) (*user.IsFollowResponse, error) {
-	res, err := union.IsFollow(l.svcCtx, in.UserId, in.TargetId)
+	res, err := union.IsFollow(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, in.TargetId)
 	if err != nil {
 		logx.WithContext(l.ctx).Error(err)
 		return nil, err

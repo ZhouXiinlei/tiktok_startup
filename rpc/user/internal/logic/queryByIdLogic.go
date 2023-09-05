@@ -9,6 +9,7 @@ import (
 	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/rpc/user/internal/svc"
+	"tikstart/rpc/user/internal/union"
 	"tikstart/rpc/user/user"
 )
 
@@ -39,11 +40,20 @@ func (l *QueryByIdLogic) QueryById(in *user.QueryByIdRequest) (*user.QueryRespon
 		}
 	}
 
+	followingCount, err := union.PickUserCounts(l.svcCtx.RDS, in.UserId, "following_count", userRecord.FollowingCount)
+	if err != nil {
+		return nil, err
+	}
+	followerCount, err := union.PickUserCounts(l.svcCtx.RDS, in.UserId, "follower_count", userRecord.FollowerCount)
+	if err != nil {
+		return nil, err
+	}
+
 	return &user.QueryResponse{
 		UserId:         userRecord.UserId,
 		Username:       userRecord.Username,
-		FollowingCount: userRecord.FollowingCount,
-		FollowerCount:  userRecord.FollowerCount,
+		FollowingCount: followingCount,
+		FollowerCount:  followerCount,
 		Password:       userRecord.Password,
 		CreatedAt:      userRecord.CreatedAt.Unix(),
 		UpdatedAt:      userRecord.UpdatedAt.Unix(),
