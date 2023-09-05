@@ -53,8 +53,6 @@ func (l *DeleteCommentLogic) DeleteComment(in *video.DeleteCommentRequest) (*vid
 			return utils.InternalWithDetails("error deleting comment_count", err)
 		}
 		return nil
-
-		return nil
 	}); err != nil {
 		return nil, err
 	}
