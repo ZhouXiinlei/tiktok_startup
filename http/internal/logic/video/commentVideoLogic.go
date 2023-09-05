@@ -89,11 +89,14 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			}
 
 			comment.User = types.User{
-				Id:            userInfo.UserId,
-				Name:          userInfo.Username,
-				IsFollow:      false,
-				FollowCount:   userInfo.FollowingCount,
-				FollowerCount: userInfo.FollowerCount,
+				Id:             userInfo.UserId,
+				Name:           userInfo.Username,
+				IsFollow:       false,
+				FollowCount:    userInfo.FollowingCount,
+				FollowerCount:  userInfo.FollowerCount,
+				TotalFavorited: userInfo.TotalFavorited,
+				WorkCount:      userInfo.WorkCount,
+				FavoriteCount:  userInfo.FavoriteCount,
 			}
 			return nil
 		})

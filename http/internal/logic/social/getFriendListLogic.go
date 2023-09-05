@@ -55,14 +55,14 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 		}
 
 		userList = append(userList, types.User{
-			Id:            friend.UserId,
-			Name:          friend.Username,
-			FollowCount:   friend.FollowingCount,
-			FollowerCount: friend.FollowerCount,
-			IsFollow:      friend.IsFollow,
-			//TotalFavorited: countRes.TotalFavorited,
-			//WorkCount:      countRes.WorkCount,
-			//FavoriteCount:  countRes.UserFavoriteCount,
+			Id:             friend.UserId,
+			Name:           friend.Username,
+			FollowCount:    friend.FollowingCount,
+			FollowerCount:  friend.FollowerCount,
+			IsFollow:       friend.IsFollow,
+			TotalFavorited: friend.TotalFavorited,
+			WorkCount:      friend.WorkCount,
+			FavoriteCount:  friend.FavoriteCount,
 		})
 	}
 

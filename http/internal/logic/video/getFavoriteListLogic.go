@@ -71,11 +71,14 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 
 		// TODO: RPC使用PRELOAD直接查出作者信息
 		author := types.User{
-			Id:            authorInfo.UserId,
-			Name:          authorInfo.Username,
-			FollowCount:   authorInfo.FollowingCount,
-			FollowerCount: authorInfo.FollowerCount,
-			IsFollow:      isFollow.IsFollow,
+			Id:             authorInfo.UserId,
+			Name:           authorInfo.Username,
+			FollowCount:    authorInfo.FollowingCount,
+			FollowerCount:  authorInfo.FollowerCount,
+			IsFollow:       isFollow.IsFollow,
+			TotalFavorited: authorInfo.TotalFavorited,
+			WorkCount:      authorInfo.WorkCount,
+			FavoriteCount:  authorInfo.FavoriteCount,
 		}
 
 		writer.Write(types.Video{
