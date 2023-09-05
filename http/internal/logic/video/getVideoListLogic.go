@@ -38,18 +38,12 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		latestTime = req.LatestTime / 1000
 	}
 
-	videoListRes, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoclient.GetVideoListRequest{
+	videoListRes, err := l.svcCtx.VideoRpc.GetVideoList(l.ctx, &videoClient.GetVideoListRequest{
 		Num:        20,
 		LatestTime: latestTime,
 	})
 	if err != nil {
 		return nil, utils.ReturnInternalError(status.Convert(err), err)
-	}
-
-	// TODO: 直接让RPC返回NextTime
-	var nextTime int64 = 0
-	if len(videoListRes.VideoList) != 0 {
-		nextTime = videoListRes.VideoList[len(videoListRes.VideoList)-1].CreateTime
 	}
 
 	// 补充视频信息
@@ -62,10 +56,13 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		if err != nil {
 			return nil, utils.ReturnInternalError(status.Convert(err), err)
 		}
+		if err != nil {
+			return nil, utils.ReturnInternalError(status.Convert(err), err)
+		}
 		//获取视频收藏状态
 		isFavorite := false
 		if userId != 0 {
-			isFavoriteVideoRes, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoclient.IsFavoriteVideoRequest{
+			isFavoriteVideoRes, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
 				UserId:  userId,
 				VideoId: v.Id,
 			})
@@ -87,15 +84,19 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 			isFollow = isFollowVideoRes.IsFollow
 
 		}
+
 		videoList = append(videoList, types.Video{
 			Id:    v.Id,
 			Title: v.Title,
 			Author: types.User{
-				Id:            v.AuthorId,
-				Name:          userInfoResp.Username,
-				IsFollow:      isFollow,
-				FollowCount:   userInfoResp.FollowingCount,
-				FollowerCount: userInfoResp.FollowerCount,
+				Id:             v.AuthorId,
+				Name:           userInfoResp.Username,
+				IsFollow:       isFollow,
+				FollowCount:    userInfoResp.FollowingCount,
+				FollowerCount:  userInfoResp.FollowerCount,
+				TotalFavorited: userInfoResp.TotalFavorited,
+				WorkCount:      userInfoResp.WorkCount,
+				FavoriteCount:  userInfoResp.FavoriteCount,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
@@ -111,6 +112,6 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 			StatusMsg:  "Success",
 		},
 		VideoList: videoList,
-		NextTime:  nextTime,
+		NextTime:  videoListRes.NextTime,
 	}, nil
 }

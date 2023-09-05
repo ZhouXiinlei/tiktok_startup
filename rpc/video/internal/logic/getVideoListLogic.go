@@ -4,6 +4,7 @@ import (
 	"context"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 	"time"
@@ -39,18 +40,18 @@ func (l *GetVideoListLogic) GetVideoList(in *video.GetVideoListRequest) (*video.
 
 	var videoList []*video.VideoInfo
 	for _, v := range videos {
-		videoList = append(videoList, &video.VideoInfo{
-			Id:            v.VideoId,
-			AuthorId:      v.AuthorId,
-			Title:         v.Title,
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			CreateTime:    v.CreatedAt.Unix(),
-		})
+		videoInfo, err := cache.GetVideoInfoById(l.svcCtx.DB, l.svcCtx.RDS, v.VideoId)
+		if err != nil {
+			return nil, err
+		}
+		videoList = append(videoList, videoInfo)
+	}
+	var nextTime int64 = 0
+	if len(videoList) != 0 {
+		nextTime = videoList[len(videoList)-1].CreateTime
 	}
 	return &video.GetVideoListResponse{
 		VideoList: videoList,
+		NextTime:  nextTime,
 	}, nil
 }

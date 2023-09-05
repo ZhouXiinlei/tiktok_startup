@@ -28,7 +28,7 @@ func NewPublishedListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (resp *types.PublishedListResponse, err error) {
 	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	publishedList, err := l.svcCtx.VideoRpc.GetVideoListByAuthor(l.ctx, &videoclient.GetVideoListByAuthorRequest{
+	publishedList, err := l.svcCtx.VideoRpc.GetVideoListByAuthor(l.ctx, &videoClient.GetVideoListByAuthorRequest{
 		AuthorId: req.UserId,
 	})
 	if err != nil {
@@ -62,7 +62,7 @@ func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (res
 
 	for _, v := range publishedList.Video {
 		//是否点赞，作者可以给自己点赞
-		isFavoriteResponse, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoclient.IsFavoriteVideoRequest{
+		isFavoriteResponse, err := l.svcCtx.VideoRpc.IsFavoriteVideo(l.ctx, &videoClient.IsFavoriteVideoRequest{
 			UserId:  userClaims.UserId,
 			VideoId: v.Id,
 		})
@@ -75,11 +75,14 @@ func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (res
 			Id:    v.Id,
 			Title: v.Title,
 			Author: types.User{
-				Id:            authorInfo.UserId,
-				Name:          authorInfo.Username,
-				FollowerCount: authorInfo.FollowerCount,
-				FollowCount:   authorInfo.FollowingCount,
-				IsFollow:      isFollow,
+				Id:             authorInfo.UserId,
+				Name:           authorInfo.Username,
+				FollowerCount:  authorInfo.FollowerCount,
+				FollowCount:    authorInfo.FollowingCount,
+				IsFollow:       isFollow,
+				TotalFavorited: authorInfo.TotalFavorited,
+				FavoriteCount:  authorInfo.FavoriteCount,
+				WorkCount:      authorInfo.WorkCount,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,

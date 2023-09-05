@@ -35,7 +35,7 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 
 	UserClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	commentListRes, err := l.svcCtx.VideoRpc.GetCommentList(l.ctx, &videoclient.GetCommentListRequest{
+	commentListRes, err := l.svcCtx.VideoRpc.GetCommentList(l.ctx, &videoClient.GetCommentListRequest{
 		VideoId: req.VideoId,
 	})
 	if err != nil {
