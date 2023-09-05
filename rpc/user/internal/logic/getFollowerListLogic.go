@@ -7,6 +7,7 @@ import (
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/user/internal/svc"
+	"tikstart/rpc/user/internal/union"
 	"tikstart/rpc/user/user"
 )
 
@@ -45,10 +46,9 @@ func (l *GetFollowerListLogic) GetFollowerList(in *user.GetFollowerListRequest) 
 			order[int(follower.UserId)] = i
 		}
 	}, func(item *model.User, writer mr.Writer[*user.UserInfo], cancel func(error)) {
-		var count int64
-		err := l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.UserId, item.UserId).Count(&count).Error
+		res, err := union.IsFollow(l.svcCtx, in.UserId, item.UserId)
 		if err != nil {
-			cancel(utils.InternalWithDetails("error querying follow relation", err))
+			cancel(err)
 			return
 		}
 
@@ -59,7 +59,7 @@ func (l *GetFollowerListLogic) GetFollowerList(in *user.GetFollowerListRequest) 
 			FollowerCount:  item.FollowerCount,
 			CreatedAt:      item.CreatedAt.Unix(),
 			UpdatedAt:      item.UpdatedAt.Unix(),
-			IsFollow:       count == 1,
+			IsFollow:       res,
 		})
 
 	}, func(pipe <-chan *user.UserInfo, writer mr.Writer[[]*user.UserInfo], cancel func(error)) {

@@ -2,13 +2,10 @@ package logic
 
 import (
 	"context"
-	"tikstart/common/model"
-	"tikstart/common/utils"
-
-	"tikstart/rpc/user/internal/svc"
-	"tikstart/rpc/user/user"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"tikstart/rpc/user/internal/svc"
+	"tikstart/rpc/user/internal/union"
+	"tikstart/rpc/user/user"
 )
 
 type IsFollowLogic struct {
@@ -26,17 +23,13 @@ func NewIsFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsFollow
 }
 
 func (l *IsFollowLogic) IsFollow(in *user.IsFollowRequest) (*user.IsFollowResponse, error) {
-	var count int64
-	err := l.svcCtx.DB.
-		Model(&model.Follow{}).
-		Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).
-		Count(&count).
-		Error
+	res, err := union.IsFollow(l.svcCtx, in.UserId, in.TargetId)
 	if err != nil {
-		return nil, utils.InternalWithDetails("error querying follow relation", err)
+		logx.WithContext(l.ctx).Error(err)
+		return nil, err
 	}
 
 	return &user.IsFollowResponse{
-		IsFollow: count == 1,
+		IsFollow: res,
 	}, nil
 }

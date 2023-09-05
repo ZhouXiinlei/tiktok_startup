@@ -66,3 +66,8 @@ func (s *UserServer) IsFollow(ctx context.Context, in *user.IsFollowRequest) (*u
 	l := logic.NewIsFollowLogic(ctx, s.svcCtx)
 	return l.IsFollow(in)
 }
+
+func (s *UserServer) GetFriendList(ctx context.Context, in *user.GetFriendListRequest) (*user.GetFriendListResponse, error) {
+	l := logic.NewGetFriendListLogic(ctx, s.svcCtx)
+	return l.GetFriendList(in)
+}

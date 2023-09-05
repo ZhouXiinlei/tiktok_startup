@@ -21,6 +21,8 @@ type (
 	GetFollowerListResponse  = user.GetFollowerListResponse
 	GetFollowingListRequest  = user.GetFollowingListRequest
 	GetFollowingListResponse = user.GetFollowingListResponse
+	GetFriendListRequest     = user.GetFriendListRequest
+	GetFriendListResponse    = user.GetFriendListResponse
 	IsFollowRequest          = user.IsFollowRequest
 	IsFollowResponse         = user.IsFollowResponse
 	PingRequest              = user.PingRequest
@@ -41,6 +43,7 @@ type (
 		GetFollowerList(ctx context.Context, in *GetFollowerListRequest, opts ...grpc.CallOption) (*GetFollowerListResponse, error)
 		GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error)
 		IsFollow(ctx context.Context, in *IsFollowRequest, opts ...grpc.CallOption) (*IsFollowResponse, error)
+		GetFriendList(ctx context.Context, in *GetFriendListRequest, opts ...grpc.CallOption) (*GetFriendListResponse, error)
 	}
 
 	defaultUser struct {
@@ -97,4 +100,9 @@ func (m *defaultUser) GetFollowingList(ctx context.Context, in *GetFollowingList
 func (m *defaultUser) IsFollow(ctx context.Context, in *IsFollowRequest, opts ...grpc.CallOption) (*IsFollowResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.IsFollow(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetFriendList(ctx context.Context, in *GetFriendListRequest, opts ...grpc.CallOption) (*GetFriendListResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetFriendList(ctx, in, opts...)
 }

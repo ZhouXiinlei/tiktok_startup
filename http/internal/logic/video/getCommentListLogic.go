@@ -35,7 +35,7 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 
 	UserClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
-	commentListRes, err := l.svcCtx.VideoRpc.GetCommentList(l.ctx, &videoClient.GetCommentListRequest{
+	commentListRes, err := l.svcCtx.VideoRpc.GetCommentList(l.ctx, &videoclient.GetCommentListRequest{
 		VideoId: req.VideoId,
 	})
 	if err != nil {
@@ -60,14 +60,14 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 	}, func(comment *video.Comment, writer mr.Writer[types.Comment], cancel func(error)) {
 		//comment := item.(*video.Comment)
 
-		userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
-			UserId: comment.AuthorId,
-		})
-		if err != nil {
-			logx.WithContext(l.ctx).Errorf("获取用户信息失败: %v", err)
-			cancel(utils.ReturnInternalError(status.Convert(err), err))
-			return
-		}
+		//userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
+		//	UserId: comment.AuthorId,
+		//})
+		//if err != nil {
+		//	logx.WithContext(l.ctx).Errorf("获取用户信息失败: %v", err)
+		//	cancel(utils.ReturnInternalError(status.Convert(err), err))
+		//	return
+		//}
 
 		isFollowRes, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &userClient.IsFollowRequest{
 			UserId:   UserClaims.UserId,
@@ -78,17 +78,16 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 			cancel(utils.ReturnInternalError(status.Convert(err), err))
 			return
 		}
-		// TODO: RPC使用PRELOAD直接查出用户信息
 		writer.Write(types.Comment{
 			Id:         comment.Id,
 			Content:    comment.Content,
 			CreateDate: time.Unix(comment.CreateTime, 0).Format("01-02"),
 			User: types.User{
-				Id:            userInfo.UserId,
-				Name:          userInfo.Username,
+				Id:            comment.UserId,
+				Name:          comment.Username,
 				IsFollow:      isFollowRes.IsFollow,
-				FollowCount:   userInfo.FollowingCount,
-				FollowerCount: userInfo.FollowerCount,
+				FollowCount:   comment.FollowingCount,
+				FollowerCount: comment.FollowerCount,
 			},
 		})
 	}, func(pipe <-chan types.Comment, writer mr.Writer[[]types.Comment], cancel func(error)) {

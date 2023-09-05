@@ -2,6 +2,7 @@ package svc
 
 import (
 	"fmt"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -13,6 +14,7 @@ import (
 type ServiceContext struct {
 	Config config.Config
 	DB     *gorm.DB
+	RDS    *redis.Redis
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -23,10 +25,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		},
 		Logger: logger.Default.LogMode(logger.Info),
 	})
+
+	rds := redis.MustNewRedis(c.Redis.RedisConf)
+
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&model.User{}, &model.Follow{})
+	err = db.AutoMigrate(&model.User{}, &model.Follow{}, &model.Friend{})
 	if err != nil {
 		panic(err)
 	}
@@ -34,6 +39,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 		DB:     db,
+		RDS:    rds,
 	}
 }
 

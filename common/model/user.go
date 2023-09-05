@@ -34,3 +34,16 @@ type Follow struct {
 	UpdatedAt time.Time `gorm:"not null;"`
 	DeletedAt gorm.DeletedAt
 }
+
+type Friend struct {
+	FriendId int64 `gorm:"not null;primaryKey;autoIncrement"`
+	UserAId  int64 `gorm:"index"`
+	UserBId  int64 `gorm:"index"`
+
+	UserA User `gorm:"joinForeignKey:UserAId;joinReferences:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserB User `gorm:"joinForeignKey:UserBId;joinReferences:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
+	CreatedAt time.Time `gorm:"not null;"`
+	UpdatedAt time.Time `gorm:"not null;"`
+	DeletedAt gorm.DeletedAt
+}

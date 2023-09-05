@@ -66,3 +66,10 @@ func ReturnInternalError(st *status.Status, err error) error {
 		Detail: err,
 	}
 }
+
+func SortId(idA int64, idB int64) (int64, int64) {
+	if idA < idB {
+		return idA, idB
+	}
+	return idB, idA
+}
