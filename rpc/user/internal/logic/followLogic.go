@@ -69,7 +69,7 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 		}
 		if res {
 			idA, idB := utils.SortId(in.UserId, in.TargetId)
-			err = l.svcCtx.DB.Create(&model.Friend{
+			err = tx.Create(&model.Friend{
 				UserAId: idA,
 				UserBId: idB,
 			}).Error

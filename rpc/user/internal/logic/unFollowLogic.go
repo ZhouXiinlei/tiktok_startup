@@ -39,7 +39,7 @@ func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) 
 			return nil
 		}
 
-		err = l.svcCtx.DB.
+		err = tx.
 			Where("follower_id = ? AND followed_id = ?", in.UserId, in.TargetId).
 			Delete(&model.Follow{}).
 			Error
@@ -53,18 +53,18 @@ func (l *UnFollowLogic) UnFollow(in *user.UnFollowRequest) (*user.Empty, error) 
 		}
 
 		// update user counts
-		err = union.ModifyUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.UserId, "following_count", -1)
+		err = union.ModifyUserCounts(tx, l.svcCtx.RDS, in.UserId, "following_count", -1)
 		if err != nil {
 			return err
 		}
-		err = union.ModifyUserCounts(l.svcCtx.DB, l.svcCtx.RDS, in.TargetId, "follower_count", -1)
+		err = union.ModifyUserCounts(tx, l.svcCtx.RDS, in.TargetId, "follower_count", -1)
 		if err != nil {
 			return err
 		}
 
 		// update friend relation
 		idA, idB := utils.SortId(in.UserId, in.TargetId)
-		err = l.svcCtx.DB.Where("user_a_id = ? AND user_b_id = ?", idA, idB).Delete(&model.Friend{}).Error
+		err = tx.Where("user_a_id = ? AND user_b_id = ?", idA, idB).Delete(&model.Friend{}).Error
 		if err != nil {
 			return utils.InternalWithDetails("err deleting friend relation", err)
 		}

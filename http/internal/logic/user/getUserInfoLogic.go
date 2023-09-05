@@ -10,7 +10,6 @@ import (
 	"tikstart/http/internal/types"
 	"tikstart/http/schema"
 	"tikstart/rpc/user/user"
-	"tikstart/rpc/video/video"
 )
 
 type GetUserInfoLogic struct {
@@ -31,7 +30,7 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 	targetId := req.UserId
 
-	userResp, err := l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
+	userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &user.QueryByIdRequest{
 		UserId: targetId,
 	})
 	if err != nil {
@@ -54,27 +53,20 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
 
-	countInfo, err := l.svcCtx.VideoRpc.GetCountById(l.ctx, &video.GetCountByIdRequest{
-		UserId: targetId,
-	})
-	if err != nil {
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
-	}
-
 	return &types.GetUserInfoResponse{
 		BasicResponse: types.BasicResponse{
 			StatusCode: 0,
 			StatusMsg:  "",
 		},
 		User: types.User{
-			Id:             userResp.UserId,
-			Name:           userResp.Username,
+			Id:             userInfo.UserId,
+			Name:           userInfo.Username,
+			FollowCount:    userInfo.FollowingCount,
+			FollowerCount:  userInfo.FollowerCount,
 			IsFollow:       isFollowResp.IsFollow,
-			FollowCount:    userResp.FollowingCount,
-			FollowerCount:  userResp.FollowerCount,
-			TotalFavorited: countInfo.TotalFavorited,
-			FavoriteCount:  countInfo.UserFavoriteCount,
-			WorkCount:      countInfo.WorkCount,
+			TotalFavorited: userInfo.TotalFavorited,
+			WorkCount:      userInfo.WorkCount,
+			FavoriteCount:  userInfo.FavoriteCount,
 		},
 	}, nil
 }
