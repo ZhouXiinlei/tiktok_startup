@@ -1,0 +1,26 @@
+MySQL:
+  Host: irain.cc
+  Port: 6033
+  User: tikstart
+  Password: SXFsvsxegJ4PtI84MR
+  Database: tikstart
+  TablePrefix: ""
+
+Redis:
+  Addr: irain.cc:9736
+  Pass: SXFsvsxegJ4PtI84MR
+  DB: 0
+
+UserRpc:
+  Endpoints:
+    - 127.0.0.1:8080
+  NonBlock: true
+VideoRpc:
+  Endpoints:
+    - 127.0.0.1:8081
+  NonBlock: true
+  Timeout: 100000
+ContactRpc:
+  Endpoints:
+    - 127.0.0.1:8082
+  NonBlock: true
