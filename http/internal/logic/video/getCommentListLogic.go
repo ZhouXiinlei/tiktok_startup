@@ -5,6 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 	"google.golang.org/grpc/status"
+	"sync"
 	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
@@ -50,12 +51,14 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 		}
 	}
 
-	order := make(map[int]int, len(commentListRes.CommentList))
+	var order sync.Map
+	//order := make(map[int]int, len(commentListRes.CommentList))
 
 	commentList, err := mr.MapReduce(func(source chan<- *video.Comment) {
 		for i, c := range commentListRes.CommentList {
 			source <- c
-			order[int(c.Id)] = i
+			//order[int(c.Id)] = i
+			order.Store(c.Id, i)
 		}
 	}, func(comment *video.Comment, writer mr.Writer[types.Comment], cancel func(error)) {
 		//comment := item.(*video.Comment)
@@ -97,8 +100,10 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 		list := make([]types.Comment, len(commentListRes.CommentList))
 		for item := range pipe {
 			comment := item
-			i, _ := order[int(comment.Id)]
-			list[i] = comment
+			//i, _ := order[int(comment.Id)]
+			//list[i] = comment
+			i, _ := order.Load(comment.Id)
+			list[i.(int)] = comment
 		}
 		writer.Write(list)
 	})
