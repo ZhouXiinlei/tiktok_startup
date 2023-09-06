@@ -40,7 +40,7 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 			}
 		} else {
 			logx.WithContext(l.ctx).Errorf("获取用户好友列表失败: %v", err)
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(l.ctx, st, err)
 		}
 	}
 
@@ -51,7 +51,7 @@ func (l *GetFriendListLogic) GetFriendList(req *types.GetFriendListRequest) (res
 		//})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取用户视频统计数据失败: %v", err)
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 
 		userList = append(userList, types.User{

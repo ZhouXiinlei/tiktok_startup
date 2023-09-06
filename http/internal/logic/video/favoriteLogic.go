@@ -47,7 +47,7 @@ func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.Favori
 					Message:    "视频不存在",
 				}
 			} else {
-				return nil, utils.ReturnInternalError(st, err)
+				return nil, utils.ReturnInternalError(l.ctx, st, err)
 			}
 		}
 	case UnFavorite:
@@ -55,7 +55,7 @@ func (l *FavoriteLogic) Favorite(req *types.FavoriteRequest) (resp *types.Favori
 			UserId:  userClaims.UserId,
 			VideoId: req.VideoId,
 		}); err != nil {
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 	default:
 		return nil, schema.ApiError{

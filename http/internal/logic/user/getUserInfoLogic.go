@@ -41,7 +41,7 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 				Message:    "用户名不存在",
 			}
 		} else {
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(l.ctx, st, err)
 		}
 	}
 
@@ -50,7 +50,7 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.GetUserInfoRequest) (resp *typ
 		TargetId: targetId,
 	})
 	if err != nil {
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
+		return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 	}
 
 	return &types.GetUserInfoResponse{

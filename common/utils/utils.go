@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/zeromicro/go-zero/core/trace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -51,7 +53,7 @@ func InternalWithDetails(msg string, items ...interface{}) error {
 	return st.Err()
 }
 
-func ReturnInternalError(st *status.Status, err error) error {
+func ReturnInternalError(ctx context.Context, st *status.Status, err error) error {
 	for index, item := range st.Details() {
 		detail := item.(*anypb.Any)
 		fmt.Printf("%d: %s\n", index, string(detail.Value))
@@ -63,7 +65,8 @@ func ReturnInternalError(st *status.Status, err error) error {
 			Code:       50000,
 			Message:    "Internal Server Error",
 		},
-		Detail: err,
+		Detail:  err,
+		TraceId: trace.TraceIDFromContext(ctx),
 	}
 }
 

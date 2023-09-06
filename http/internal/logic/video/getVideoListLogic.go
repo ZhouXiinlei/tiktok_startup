@@ -43,7 +43,7 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 		LatestTime: latestTime,
 	})
 	if err != nil {
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
+		return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 	}
 
 	// 补充视频信息
@@ -54,10 +54,10 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 			UserId: v.AuthorId,
 		})
 		if err != nil {
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 		if err != nil {
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 		//获取视频收藏状态
 		isFavorite := false
@@ -67,7 +67,7 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 				VideoId: v.Id,
 			})
 			if err != nil {
-				return nil, utils.ReturnInternalError(status.Convert(err), err)
+				return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 			}
 			isFavorite = isFavoriteVideoRes.IsFavorite
 		}
@@ -79,7 +79,7 @@ func (l *GetVideoListLogic) GetVideoList(req *types.GetVideoListRequest) (resp *
 				TargetId: v.AuthorId,
 			})
 			if err != nil {
-				return nil, utils.ReturnInternalError(status.Convert(err), err)
+				return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 			}
 			isFollow = isFollowVideoRes.IsFollow
 

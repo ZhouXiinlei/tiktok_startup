@@ -46,7 +46,7 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 				Message:    "视频不存在",
 			}
 		} else {
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(l.ctx, st, err)
 		}
 	}
 
@@ -78,7 +78,7 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取关注信息失败: %v", err)
-			cancel(utils.ReturnInternalError(status.Convert(err), err))
+			cancel(utils.ReturnInternalError(l.ctx, status.Convert(err), err))
 			return
 		}
 		writer.Write(types.Comment{
