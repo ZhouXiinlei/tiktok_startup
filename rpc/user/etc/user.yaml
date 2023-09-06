@@ -1,6 +1,7 @@
 Name: user.rpc
 ListenOn: 0.0.0.0:8080
 Mode: dev
+Timeout: 100000
 
 Middlewares:
   Metrics: true

@@ -21,17 +21,6 @@ func TrueOrFalse(str string) (val bool, match bool) {
 	}
 	return false, false
 }
-func GenWorkCountKey(userId int64) string {
-	return fmt.Sprintf("getworkcount_%d", userId)
-
-}
-func GenUserFavoriteCountKey(userId int64) string {
-	return fmt.Sprintf("getuserfavoritecount_%d", userId)
-}
-func GenTotalFavoritedKey(userId int64) string {
-	return fmt.Sprintf("gettotalfavorited_%d", userId)
-
-}
 
 func GenVideoCountsKey(topic string) string {
 	return fmt.Sprintf("video_%ss", topic)

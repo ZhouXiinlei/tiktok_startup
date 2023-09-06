@@ -1,6 +1,7 @@
 Name: video.rpc
 ListenOn: 0.0.0.0:8081
 Mode: dev
+Timeout: 100000
 
 Middlewares:
   Metrics: true
@@ -35,3 +36,4 @@ UserRpc:
   Endpoints:
     - 127.0.0.1:8080
   NonBlock: true
+  Timeout: 100000
