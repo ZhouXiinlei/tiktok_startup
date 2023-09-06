@@ -25,7 +25,10 @@ func main() {
 	taskHandler := handler.NewTaskHandler(ctx, svcCtx)
 
 	srv := asynq.NewServer(
-		asynq.RedisClientOpt{Addr: c.Redis.Addr, Password: c.Redis.Pass},
+		asynq.RedisClientOpt{
+			Addr:     c.Redis.Addr,
+			Password: c.Redis.Pass,
+		},
 		asynq.Config{},
 	)
 

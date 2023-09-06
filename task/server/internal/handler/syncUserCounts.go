@@ -13,12 +13,13 @@ import (
 )
 
 func (l *TaskHandler) SyncUserCountsHandler(ctx context.Context, t *asynq.Task) error {
-	var payload task.SyncUserCountsPayload
+	var payload task.SyncPayload
 	err := json.Unmarshal(t.Payload(), &payload)
 	if err != nil {
 		l.Logger.Error(err.Error())
 		return err
 	}
+	fmt.Printf("running sync for field: %s\n", payload.Field)
 
 	members, err := l.svcCtx.RDS.ZRange(ctx, cache.GenUserCountsKey(payload.Field), 0, -1).Result()
 	if err != nil {
@@ -32,7 +33,7 @@ func (l *TaskHandler) SyncUserCountsHandler(ctx context.Context, t *asynq.Task) 
 			logx.Error(err.Error())
 			return err
 		}
-		fmt.Printf("topic: %s, member: %s, score: %f.0\n", payload.Field, member, score)
+		fmt.Printf("topic: %s, member: %s, score: %.f\n", payload.Field, member, score)
 
 		err = l.svcCtx.DB.
 			Model(&model.User{}).
