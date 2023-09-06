@@ -5,7 +5,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 	"google.golang.org/grpc/status"
-	"sync"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
 	"tikstart/http/internal/types"
@@ -41,14 +40,16 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 		return nil, utils.ReturnInternalError(status.Convert(err), err)
 	}
 
-	//order := make(map[int]int, len(favoriteListRes.VideoList))
-	var order sync.Map
+	order := make(map[int64]int, len(favoriteListRes.VideoList))
+	//var order sync.Map
+	lock := make(chan struct{})
 	favoriteList, err := mr.MapReduce(func(source chan<- *video.VideoInfo) {
 		for i, v := range favoriteListRes.VideoList {
 			source <- v
-			//order[int(v.Id)] = i
-			order.Store(v.Id, i)
+			order[v.Id] = i
+			//order.Store(v.Id, i)
 		}
+		lock <- struct{}{}
 	}, func(videoInfo *video.VideoInfo, writer mr.Writer[types.Video], cancel func(error)) {
 		authorInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
 			UserId: videoInfo.AuthorId,
@@ -94,13 +95,14 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 		})
 
 	}, func(pipe <-chan types.Video, writer mr.Writer[[]types.Video], cancel func(error)) {
+		<-lock
 		list := make([]types.Video, len(favoriteListRes.VideoList))
 		for item := range pipe {
 			videoInfo := item
-			//i, _ := order[int(videoInfo.Id)]
-			//list[i] = videoInfo
-			i, _ := order.Load(videoInfo.Id)
-			list[i.(int)] = videoInfo
+			i, _ := order[videoInfo.Id]
+			list[i] = videoInfo
+			//i, _ := order.Load(videoInfo.Id)
+			//list[i.(int)] = videoInfo
 		}
 		writer.Write(list)
 	})

@@ -5,7 +5,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 	"google.golang.org/grpc/status"
-	"sync"
 	"tikstart/common"
 	"tikstart/common/utils"
 	"tikstart/http/internal/svc"
@@ -51,17 +50,18 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 		}
 	}
 
-	var order sync.Map
-	//order := make(map[int]int, len(commentListRes.CommentList))
-
-	commentList, err := mr.MapReduce(func(source chan<- *video.Comment) {
+	//var order sync.Map
+	order := make(map[int64]int, len(commentListRes.CommentList))
+	lock := make(chan struct{})
+	commentList, err := mr.MapReduce(func(source chan<- interface{}) {
 		for i, c := range commentListRes.CommentList {
 			source <- c
-			//order[int(c.Id)] = i
-			order.Store(c.Id, i)
+			order[c.Id] = i
+			//order.Store(c.Id, i)
 		}
-	}, func(comment *video.Comment, writer mr.Writer[types.Comment], cancel func(error)) {
-		//comment := item.(*video.Comment)
+		lock <- struct{}{}
+	}, func(item interface{}, writer mr.Writer[types.Comment], cancel func(error)) {
+		comment := item.(*video.Comment)
 
 		//userInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
 		//	UserId: comment.AuthorId,
@@ -97,13 +97,14 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 			},
 		})
 	}, func(pipe <-chan types.Comment, writer mr.Writer[[]types.Comment], cancel func(error)) {
+		<-lock
 		list := make([]types.Comment, len(commentListRes.CommentList))
 		for item := range pipe {
 			comment := item
-			//i, _ := order[int(comment.Id)]
-			//list[i] = comment
-			i, _ := order.Load(comment.Id)
-			list[i.(int)] = comment
+			i, _ := order[comment.Id]
+			list[i] = comment
+			//i, _ := order.Load(comment.Id)
+			//list[i.(int)] = comment
 		}
 		writer.Write(list)
 	})
