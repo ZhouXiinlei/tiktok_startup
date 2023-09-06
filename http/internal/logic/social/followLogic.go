@@ -78,7 +78,7 @@ func (l *FollowLogic) Follow(req *types.FollowRequest) (resp *types.FollowRespon
 			TargetId: req.ToUserId,
 		})
 		if err != nil {
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 	case UnFollow:
 		//res, err := l.svcCtx.UserRpc.IsFollow(l.ctx, &user.IsFollowRequest{
@@ -108,7 +108,7 @@ func (l *FollowLogic) Follow(req *types.FollowRequest) (resp *types.FollowRespon
 			TargetId: req.ToUserId,
 		})
 		if err != nil {
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 	default:
 		return nil, schema.ApiError{

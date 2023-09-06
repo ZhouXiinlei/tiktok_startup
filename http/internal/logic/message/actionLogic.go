@@ -63,7 +63,7 @@ func (l *ActionLogic) Action(req *types.MessageActionRequest) (resp *types.Messa
 				Message:    "用户不存在",
 			}
 		} else {
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(l.ctx, st, err)
 		}
 	}
 

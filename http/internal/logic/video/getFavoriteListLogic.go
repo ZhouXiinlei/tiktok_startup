@@ -38,7 +38,7 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 	})
 	if err != nil {
 		logx.WithContext(l.ctx).Errorf("获取用户喜欢视频列表失败: %v", err)
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
+		return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 	}
 
 	//order := make(map[int]int, len(favoriteListRes.VideoList))
@@ -56,7 +56,7 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取作者信息失败: %v", err)
-			cancel(utils.ReturnInternalError(status.Convert(err), err))
+			cancel(utils.ReturnInternalError(l.ctx, status.Convert(err), err))
 			return
 		}
 
@@ -67,7 +67,7 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取关注信息失败: %v", err)
-			cancel(utils.ReturnInternalError(status.Convert(err), err))
+			cancel(utils.ReturnInternalError(l.ctx, status.Convert(err), err))
 			return
 		}
 

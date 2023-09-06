@@ -33,7 +33,7 @@ func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (res
 	})
 	if err != nil {
 		logx.WithContext(l.ctx).Errorf("获取发布列表失败: %v", err)
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
+		return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 	}
 
 	authorInfo, err := l.svcCtx.UserRpc.QueryById(l.ctx, &userClient.QueryByIdRequest{
@@ -41,7 +41,7 @@ func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (res
 	})
 	if err != nil {
 		logx.WithContext(l.ctx).Errorf("获取用户信息失败: %v", err)
-		return nil, utils.ReturnInternalError(status.Convert(err), err)
+		return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 	}
 
 	videoList := make([]types.Video, 0, len(publishedList.Video))
@@ -55,7 +55,7 @@ func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (res
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取用户是否关注失败: %v", err)
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 		isFollow = isFollowRes.IsFollow
 	}
@@ -68,7 +68,7 @@ func (l *PublishedListLogic) PublishedList(req *types.PublishedListRequest) (res
 		})
 		if err != nil {
 			logx.WithContext(l.ctx).Errorf("获取用户是否点赞失败: %v", err)
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 
 		videoList = append(videoList, types.Video{

@@ -41,7 +41,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 				Message:    "用户名不存在",
 			}
 		} else {
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(l.ctx, st, err)
 		}
 	}
 

@@ -52,7 +52,7 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Regist
 				Message:    "用户名已被使用",
 			}
 		} else {
-			return nil, utils.ReturnInternalError(st, err)
+			return nil, utils.ReturnInternalError(l.ctx, st, err)
 		}
 	}
 

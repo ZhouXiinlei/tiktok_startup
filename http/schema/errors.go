@@ -13,7 +13,8 @@ type ApiError struct {
 
 type ServerError struct {
 	ApiError
-	Detail error
+	Detail  error
+	TraceId string
 }
 
 func (e ApiError) Error() string {

@@ -70,7 +70,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 					}
 				} else {
 					logx.WithContext(l.ctx).Errorf("创建评论失败: %s", err.Error())
-					return utils.ReturnInternalError(st, err)
+					return utils.ReturnInternalError(l.ctx, st, err)
 				}
 			}
 
@@ -85,7 +85,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			})
 			if err != nil {
 				logx.WithContext(l.ctx).Errorf("获取用户信息失败: %s", err.Error())
-				return utils.ReturnInternalError(status.Convert(err), err)
+				return utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 			}
 
 			comment.User = types.User{
@@ -124,7 +124,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 				}
 			} else {
 				logx.WithContext(l.ctx).Errorf("获取评论信息失败: %s", err.Error())
-				return nil, utils.ReturnInternalError(st, err)
+				return nil, utils.ReturnInternalError(l.ctx, st, err)
 			}
 		}
 
@@ -140,7 +140,7 @@ func (l *CommentVideoLogic) CommentVideo(req *types.CommentRequest) (resp *types
 			CommentId: req.CommentId,
 		}); err != nil {
 			logx.WithContext(l.ctx).Errorf("删除评论失败: %s", err.Error())
-			return nil, utils.ReturnInternalError(status.Convert(err), err)
+			return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
 		}
 
 		return &types.CommentResponse{
