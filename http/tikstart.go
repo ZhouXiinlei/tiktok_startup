@@ -7,6 +7,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
+	"regexp"
 	"tikstart/http/internal/config"
 	"tikstart/http/internal/handler"
 	"tikstart/http/internal/svc"
@@ -42,12 +43,22 @@ func errHandler(err error) (int, interface{}) {
 		fmt.Printf("%s: %s\n", e, e.Detail)
 		return e.StatusCode, e.Response()
 	default:
-		fmt.Printf("Internal Server Error: %s\n", e)
-		fmt.Printf("Type of error: %T\n", e)
+		// filter user 400 error
+		re := regexp.MustCompile(`field "([^"]+)" is not set`)
+		matches := re.FindStringSubmatch(err.Error())
+		if len(matches) >= 2 {
+			return http.StatusBadRequest, &types.BasicResponse{
+				StatusCode: 40000,
+				StatusMsg:  fmt.Sprintf("field '%s' is not set", matches[1]),
+			}
+		} else {
+			fmt.Printf("Internal Server Error: %s\n", e)
+			fmt.Printf("Type of error: %T\n", e)
 
-		return http.StatusInternalServerError, &types.BasicResponse{
-			StatusCode: 50000,
-			StatusMsg:  "Internal Server Error",
+			return http.StatusInternalServerError, &types.BasicResponse{
+				StatusCode: 50000,
+				StatusMsg:  "Internal Server Error",
+			}
 		}
 	}
 }
