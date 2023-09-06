@@ -83,11 +83,14 @@ func (l *GetCommentListLogic) GetCommentList(req *types.GetCommentListRequest) (
 			Content:    comment.Content,
 			CreateDate: time.Unix(comment.CreateTime, 0).Format("01-02"),
 			User: types.User{
-				Id:            comment.UserId,
-				Name:          comment.Username,
-				IsFollow:      isFollowRes.IsFollow,
-				FollowCount:   comment.FollowingCount,
-				FollowerCount: comment.FollowerCount,
+				Id:             comment.UserId,
+				Name:           comment.Username,
+				IsFollow:       isFollowRes.IsFollow,
+				FollowCount:    comment.FollowingCount,
+				FollowerCount:  comment.FollowerCount,
+				FavoriteCount:  comment.FavoriteCount,
+				TotalFavorited: comment.Total_Favorited,
+				WorkCount:      comment.WorkCount,
 			},
 		})
 	}, func(pipe <-chan types.Comment, writer mr.Writer[[]types.Comment], cancel func(error)) {

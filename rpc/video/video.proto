@@ -27,6 +27,9 @@ message Comment {
   string username = 7;
   int64 following_count = 8;
   int64 follower_count = 9;
+  int64 total_Favorited =10;
+  int64 work_count=11;
+  int64 favorite_count=12;
 }
 
 service Video {
@@ -44,7 +47,7 @@ service Video {
   rpc GetCommentList(GetCommentListRequest) returns (GetCommentListResponse);
   rpc DeleteComment(DeleteCommentRequest) returns(Empty);
   rpc GetCommentById(GetCommentByIdRequest) returns (GetCommentByIdResponse);
-//  rpc GetCountById(GetCountByIdRequest) returns(GetCountByIdResponse);
+  //  rpc GetCountById(GetCountByIdRequest) returns(GetCountByIdResponse);
 }
 //获取视频列表
 message GetVideoListRequest {
@@ -118,6 +121,7 @@ message GetCommentListResponse {
 //删除评论
 message DeleteCommentRequest {
   int64 CommentId = 1;
+  int64  VideoId = 2;
 }
 //获取评论详细信息
 message GetCommentByIdRequest {

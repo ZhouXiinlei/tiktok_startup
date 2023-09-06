@@ -14,6 +14,7 @@ import (
 
 func PickVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field string, dbCount int64) (int64, error) {
 	score, err := rds.Zscore(GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
+	go ManageCache(db, rds, videoId, field)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return dbCount, nil
@@ -21,7 +22,6 @@ func PickVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field string,
 			return 0, utils.InternalWithDetails("(redis)error querying cache status", err)
 		}
 	}
-	go ManageCache(db, rds, videoId, field)
 	return score, nil
 }
 
