@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	SyncUserCounts = "user:counts:sync"
+	SyncUserCounts  = "user:counts:sync"
+	SyncVideoCounts = "video:counts:sync"
 )
 
 type SyncPayload struct {

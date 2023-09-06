@@ -35,6 +35,7 @@ func main() {
 	// mux maps a type to a handler
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(task.SyncUserCounts, taskHandler.SyncUserCountsHandler)
+	mux.HandleFunc(task.SyncVideoCounts, taskHandler.SyncVideoCountsHandler)
 
 	if err := srv.Run(mux); err != nil {
 		log.Fatalf("could not run server: %v", err)

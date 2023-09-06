@@ -12,7 +12,7 @@ import (
 	"tikstart/task"
 )
 
-func (l *TaskHandler) SyncUserCountsHandler(ctx context.Context, t *asynq.Task) error {
+func (l *TaskHandler) SyncVideoCountsHandler(ctx context.Context, t *asynq.Task) error {
 	var payload task.SyncPayload
 	err := json.Unmarshal(t.Payload(), &payload)
 	if err != nil {
@@ -21,7 +21,7 @@ func (l *TaskHandler) SyncUserCountsHandler(ctx context.Context, t *asynq.Task) 
 	}
 	fmt.Printf("running sync for field: %s\n", payload.Field)
 
-	zRes, err := l.svcCtx.RDS.ZRangeWithScores(ctx, cache.GenUserCountsKey(payload.Field), 0, -1).Result()
+	zRes, err := l.svcCtx.RDS.ZRangeWithScores(ctx, cache.GenVideoCountsKey(payload.Field), 0, -1).Result()
 	if err != nil {
 		logx.Error(err.Error())
 		return err
@@ -43,8 +43,8 @@ func (l *TaskHandler) SyncUserCountsHandler(ctx context.Context, t *asynq.Task) 
 		fmt.Printf("topic: %s, member: %d, score: %d\n", payload.Field, member, score)
 
 		err = l.svcCtx.DB.
-			Model(&model.User{}).
-			Where("user_id = ?", member).
+			Model(&model.Video{}).
+			Where("video_id = ?", member).
 			UpdateColumn(payload.Field, score).
 			Error
 		if err != nil {
@@ -52,14 +52,14 @@ func (l *TaskHandler) SyncUserCountsHandler(ctx context.Context, t *asynq.Task) 
 			return err
 		}
 
-		hit, err := l.svcCtx.RDS.Exists(ctx, cache.GenUserHeatKey(member)).Result()
+		hit, err := l.svcCtx.RDS.Exists(ctx, cache.GenVideoHeatKey(member)).Result()
 		if err != nil {
 			logx.Error(err.Error())
 			return err
 		}
 		if hit != 1 {
 			fmt.Printf("member %d removed from topic %s\n", member, payload.Field)
-			_, err := l.svcCtx.RDS.ZRem(ctx, cache.GenUserCountsKey(payload.Field), member).Result()
+			_, err := l.svcCtx.RDS.ZRem(ctx, cache.GenVideoCountsKey(payload.Field), member).Result()
 			if err != nil {
 				logx.Error(err.Error())
 				return err

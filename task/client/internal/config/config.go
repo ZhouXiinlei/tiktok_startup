@@ -6,4 +6,8 @@ type Config struct {
 		Pass string
 		DB   int
 	}
+	Interval struct {
+		UserCounts  string
+		VideoCounts string
+	}
 }
