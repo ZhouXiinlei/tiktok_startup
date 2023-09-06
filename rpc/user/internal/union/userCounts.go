@@ -15,6 +15,7 @@ import (
 
 func PickUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string, dbCount int64) (int64, error) {
 	score, err := rds.Zscore(cache.GenUserCountsKey(field), strconv.FormatInt(userId, 10))
+	go ManageCache(db, rds, userId, field)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return dbCount, nil
@@ -23,7 +24,6 @@ func PickUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string, d
 		}
 	}
 
-	go ManageCache(db, rds, userId, field)
 	return score, nil
 }
 
