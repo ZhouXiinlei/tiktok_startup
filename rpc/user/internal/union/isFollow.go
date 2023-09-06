@@ -4,9 +4,9 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/gorm"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
-	"tikstart/rpc/user/internal/cache"
 )
 
 func IsFollow(db *gorm.DB, rds *redis.Redis, userId int64, targetId int64) (bool, error) {

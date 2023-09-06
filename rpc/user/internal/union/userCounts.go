@@ -8,9 +8,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
-	"tikstart/rpc/user/internal/cache"
 )
 
 func PickUserCounts(db *gorm.DB, rds *redis.Redis, userId int64, field string, dbCount int64) (int64, error) {

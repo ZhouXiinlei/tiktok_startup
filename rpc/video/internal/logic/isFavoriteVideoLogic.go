@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
-	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
+	"tikstart/rpc/video/internal/union"
 	"tikstart/rpc/video/video"
 )
 
@@ -23,7 +23,7 @@ func NewIsFavoriteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 }
 
 func (l *IsFavoriteVideoLogic) IsFavoriteVideo(in *video.IsFavoriteVideoRequest) (*video.IsFavoriteVideoResponse, error) {
-	res, err := cache.IsFavorite(l.svcCtx, in.UserId, in.VideoId)
+	res, err := union.IsFavorite(l.svcCtx, in.UserId, in.VideoId)
 	if err != nil {
 		logx.WithContext(l.ctx).Error(err)
 		return nil, err

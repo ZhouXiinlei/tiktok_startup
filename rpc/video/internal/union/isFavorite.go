@@ -1,18 +1,19 @@
-package cache
+package union
 
 import (
 	"github.com/zeromicro/go-zero/core/logx"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/video/internal/svc"
 )
 
 func IsFavorite(svcCtx *svc.ServiceContext, userId int64, videoId int64) (bool, error) {
-	val, err := svcCtx.RDS.Get(GenFavoriteKey(userId, videoId))
+	val, err := svcCtx.RDS.Get(cache.GenFavoriteKey(userId, videoId))
 	if err != nil {
 		return false, utils.InternalWithDetails("(redis)error getting favorite relation", err)
 	}
-	if v, hit := TrueOrFalse(val); hit {
+	if v, hit := cache.TrueOrFalse(val); hit {
 		return v, nil
 	}
 
@@ -27,7 +28,7 @@ func IsFavorite(svcCtx *svc.ServiceContext, userId int64, videoId int64) (bool, 
 	}
 
 	go func() {
-		err = svcCtx.RDS.Set(GenFavoriteKey(userId, videoId), YesOrNo(count == 1))
+		err = svcCtx.RDS.Set(cache.GenFavoriteKey(userId, videoId), cache.YesOrNo(count == 1))
 		if err != nil {
 			logx.Errorf("(redis)error setting favorite relation", err)
 		}

@@ -5,11 +5,12 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
 	"tikstart/common"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/user/userClient"
-	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
+	"tikstart/rpc/video/internal/union"
 	"tikstart/rpc/video/video"
 )
 
@@ -38,7 +39,7 @@ func (l *FavoriteVideoLogic) FavoriteVideo(in *video.FavoriteVideoRequest) (*vid
 			return common.ErrVideoNotFound.Err()
 		}
 
-		res, err := cache.IsFavorite(l.svcCtx, in.UserId, in.VideoId)
+		res, err := union.IsFavorite(l.svcCtx, in.UserId, in.VideoId)
 		if err != nil {
 			return err
 		}
@@ -58,7 +59,7 @@ func (l *FavoriteVideoLogic) FavoriteVideo(in *video.FavoriteVideoRequest) (*vid
 		if err != nil {
 			return utils.InternalWithDetails("(redis)error updating favorite relation", err)
 		}
-		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "favorite_count", 1)
+		err = union.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "favorite_count", 1)
 		if err != nil {
 			return utils.InternalWithDetails("error adding favorite_count", err)
 		}

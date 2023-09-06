@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/anypb"
 	"regexp"
-	"strconv"
 	"tikstart/http/schema"
 )
 
@@ -73,16 +72,4 @@ func SortId(idA int64, idB int64) (int64, int64) {
 		return idA, idB
 	}
 	return idB, idA
-}
-
-func Int64ToStr(num int64) string {
-	return strconv.FormatInt(num, 10)
-}
-
-func StrToInt64(val string) int64 {
-	num, err := strconv.ParseInt(val, 10, 64)
-	if err != nil {
-		return 0
-	}
-	return num
 }

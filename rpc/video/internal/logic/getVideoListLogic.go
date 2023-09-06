@@ -4,8 +4,8 @@ import (
 	"context"
 	"tikstart/common/model"
 	"tikstart/common/utils"
-	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
+	"tikstart/rpc/video/internal/union"
 	"tikstart/rpc/video/video"
 	"time"
 
@@ -40,7 +40,7 @@ func (l *GetVideoListLogic) GetVideoList(in *video.GetVideoListRequest) (*video.
 
 	var videoList []*video.VideoInfo
 	for _, v := range videos {
-		videoInfo, err := cache.GetVideoInfoById(l.svcCtx.DB, l.svcCtx.RDS, v.VideoId)
+		videoInfo, err := union.GetVideoInfoById(l.svcCtx.DB, l.svcCtx.RDS, v.VideoId)
 		if err != nil {
 			return nil, err
 		}

@@ -1,4 +1,4 @@
-package cache
+package union
 
 import (
 	"github.com/zeromicro/go-zero/core/stores/redis"

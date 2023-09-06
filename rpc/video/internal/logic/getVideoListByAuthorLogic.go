@@ -4,8 +4,8 @@ import (
 	"context"
 	"tikstart/common/model"
 	"tikstart/common/utils"
-	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
+	"tikstart/rpc/video/internal/union"
 	"tikstart/rpc/video/video"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -38,7 +38,7 @@ func (l *GetVideoListByAuthorLogic) GetVideoListByAuthor(in *video.GetVideoListB
 
 	videoList := make([]*video.VideoInfo, 0, len(videos))
 	for _, v := range videos {
-		videoInfo, err := cache.GetVideoInfoById(l.svcCtx.DB, l.svcCtx.RDS, v.VideoId)
+		videoInfo, err := union.GetVideoInfoById(l.svcCtx.DB, l.svcCtx.RDS, v.VideoId)
 		if err != nil {
 			return nil, err
 		}

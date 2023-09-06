@@ -1,4 +1,4 @@
-package cache
+package union
 
 import (
 	"errors"
@@ -8,12 +8,13 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 )
 
 func PickVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field string, dbCount int64) (int64, error) {
-	score, err := rds.Zscore(GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
+	score, err := rds.Zscore(cache.GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
 	go ManageCache(db, rds, videoId, field)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -27,7 +28,7 @@ func PickVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field string,
 
 func ModifyVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field string, delta int64) error {
 	// check cache first
-	_, err := rds.Zscore(GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
+	_, err := rds.Zscore(cache.GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			// cache miss, update database
@@ -46,7 +47,7 @@ func ModifyVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field strin
 	}
 	// cache hit in redis, then update cache only
 	go func() {
-		_, err = rds.Zincrby(GenVideoCountsKey(field), delta, strconv.FormatInt(videoId, 10))
+		_, err = rds.Zincrby(cache.GenVideoCountsKey(field), delta, strconv.FormatInt(videoId, 10))
 		if err != nil {
 			logx.Errorf("(redis)error incrementing video_counts", err)
 		}
@@ -60,19 +61,19 @@ func ModifyVideoCounts(db *gorm.DB, rds *redis.Redis, videoId int64, field strin
 
 func ManageCache(db *gorm.DB, rds *redis.Redis, videoId int64, field string) {
 	// set or add heat
-	heat, err := rds.Incr(GenVideoHeatKey(videoId))
+	heat, err := rds.Incr(cache.GenVideoHeatKey(videoId))
 	if err != nil {
 		logx.Errorf("(redis)error incrementing video_heat", err)
 	}
 	// reset expire time
-	err = rds.Expire(GenVideoHeatKey(videoId), 300)
+	err = rds.Expire(cache.GenVideoHeatKey(videoId), 300)
 	if err != nil {
 		logx.Errorf("(redis)error resetting video_heat expire", err)
 	}
 
 	// popular video, cache field
 	if heat > 0 {
-		_, err := rds.Zscore(GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
+		_, err := rds.Zscore(cache.GenVideoCountsKey(field), strconv.FormatInt(videoId, 10))
 		if err != nil {
 			if errors.Is(err, redis.Nil) {
 				// not cached, setting new cache
@@ -87,7 +88,7 @@ func ManageCache(db *gorm.DB, rds *redis.Redis, videoId int64, field string) {
 					logx.Errorf(fmt.Sprintf("(mysql)error querying %s", field), err)
 				}
 
-				_, err = rds.Zadd(GenVideoCountsKey(field), count, strconv.FormatInt(videoId, 10))
+				_, err = rds.Zadd(cache.GenVideoCountsKey(field), count, strconv.FormatInt(videoId, 10))
 				if err != nil {
 					logx.Errorf(fmt.Sprintf("(redis)error setting %s", field), err)
 				}

@@ -6,7 +6,7 @@ import (
 	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
-	"tikstart/rpc/video/internal/cache"
+	"tikstart/rpc/video/internal/union"
 
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
@@ -49,7 +49,7 @@ func (l *CreateCommentLogic) CreateComment(in *video.CreateCommentRequest) (*vid
 			return utils.InternalWithDetails("error creating comment", err)
 		}
 
-		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "comment_count", 1)
+		err = union.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "comment_count", 1)
 		if err != nil {
 			return utils.InternalWithDetails("error adding comment_count", err)
 		}

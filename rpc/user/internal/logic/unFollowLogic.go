@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 	"gorm.io/gorm"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
-	"tikstart/rpc/user/internal/cache"
 	"tikstart/rpc/user/internal/union"
 
 	"tikstart/rpc/user/internal/svc"

@@ -4,11 +4,12 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
+	"tikstart/common/cache"
 	"tikstart/common/model"
 	"tikstart/common/utils"
 	"tikstart/rpc/user/userClient"
-	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
+	"tikstart/rpc/video/internal/union"
 	"tikstart/rpc/video/video"
 )
 
@@ -39,7 +40,7 @@ func (l *UnFavoriteVideoLogic) UnFavoriteVideo(in *video.UnFavoriteVideoRequest)
 		if err != nil {
 			return utils.InternalWithDetails("(redis)error updating favorite relation", err)
 		}
-		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "favorite_count", -1)
+		err = union.ModifyVideoCounts(tx, l.svcCtx.RDS, in.VideoId, "favorite_count", -1)
 		if err != nil {
 			return utils.InternalWithDetails("error deleting favorite_count", err)
 		}
