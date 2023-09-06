@@ -32,12 +32,12 @@ func (s *UserServer) Create(ctx context.Context, in *user.CreateRequest) (*user.
 	return l.Create(in)
 }
 
-func (s *UserServer) QueryById(ctx context.Context, in *user.QueryByIdRequest) (*user.QueryResponse, error) {
+func (s *UserServer) QueryById(ctx context.Context, in *user.QueryByIdRequest) (*user.UserInfo, error) {
 	l := logic.NewQueryByIdLogic(ctx, s.svcCtx)
 	return l.QueryById(in)
 }
 
-func (s *UserServer) QueryByName(ctx context.Context, in *user.QueryByNameRequest) (*user.QueryResponse, error) {
+func (s *UserServer) QueryByName(ctx context.Context, in *user.QueryByNameRequest) (*user.UserInfo, error) {
 	l := logic.NewQueryByNameLogic(ctx, s.svcCtx)
 	return l.QueryByName(in)
 }
@@ -70,4 +70,14 @@ func (s *UserServer) IsFollow(ctx context.Context, in *user.IsFollowRequest) (*u
 func (s *UserServer) GetFriendList(ctx context.Context, in *user.GetFriendListRequest) (*user.GetFriendListResponse, error) {
 	l := logic.NewGetFriendListLogic(ctx, s.svcCtx)
 	return l.GetFriendList(in)
+}
+
+func (s *UserServer) ModFavorite(ctx context.Context, in *user.ModFavoriteRequest) (*user.Empty, error) {
+	l := logic.NewModFavoriteLogic(ctx, s.svcCtx)
+	return l.ModFavorite(in)
+}
+
+func (s *UserServer) ModWorkCount(ctx context.Context, in *user.ModWorkCountRequest) (*user.Empty, error) {
+	l := logic.NewModWorkCountLogic(ctx, s.svcCtx)
+	return l.ModWorkCount(in)
 }

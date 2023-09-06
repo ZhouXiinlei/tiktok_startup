@@ -27,17 +27,6 @@ message QueryByIdRequest {
 message QueryByNameRequest {
   string username = 1;
 }
-
-message QueryResponse {
-  int64 user_id = 1;
-  string username = 2;
-  int64 following_count = 3;
-  int64 follower_count = 4;
-  bytes password = 12;
-  int64 created_at = 15;
-  int64 updated_at = 16;
-}
-
 message Empty{}
 
 message FollowRequest{
@@ -55,7 +44,11 @@ message UserInfo {
   string username = 2;
   int64 following_count = 3;
   int64 follower_count = 4;
-  bool  is_follow = 14;
+  bool is_follow = 5;
+  int64 total_favorited = 9;
+  int64 work_count = 10;
+  int64 favorite_count = 11;
+  bytes password = 12;
   int64 created_at = 15;
   int64 updated_at = 16;
 }
@@ -93,15 +86,28 @@ message GetFriendListResponse {
   repeated UserInfo FriendList = 1;
 }
 
+message ModFavoriteRequest {
+  int64 UserId = 1;
+  int64 TargetId = 2;
+  int64 Delta = 3;
+}
+
+message ModWorkCountRequest{
+  int64 UserId = 1;
+  int64 Delta = 2;
+}
+
 service User {
   rpc Ping(PingRequest) returns(PingResponse);
   rpc Create(CreateRequest) returns(CreateResponse);
-  rpc QueryById(QueryByIdRequest) returns(QueryResponse);
-  rpc QueryByName(QueryByNameRequest) returns(QueryResponse);
+  rpc QueryById(QueryByIdRequest) returns(UserInfo);
+  rpc QueryByName(QueryByNameRequest) returns(UserInfo);
   rpc Follow(FollowRequest) returns(Empty);
   rpc UnFollow(UnFollowRequest) returns(Empty);
   rpc GetFollowerList(GetFollowerListRequest) returns(GetFollowerListResponse);
   rpc GetFollowingList(GetFollowingListRequest) returns(GetFollowingListResponse);
   rpc IsFollow(IsFollowRequest) returns(IsFollowResponse);
   rpc GetFriendList(GetFriendListRequest) returns(GetFriendListResponse);
+  rpc ModFavorite(ModFavoriteRequest) returns(Empty);
+  rpc ModWorkCount(ModWorkCountRequest) returns(Empty);
 }

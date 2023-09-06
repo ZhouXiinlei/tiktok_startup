@@ -4,6 +4,7 @@ import (
 	"context"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/video/internal/cache"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 
@@ -37,14 +38,9 @@ func (l *GetVideoListByAuthorLogic) GetVideoListByAuthor(in *video.GetVideoListB
 
 	videoList := make([]*video.VideoInfo, 0, len(videos))
 	for _, v := range videos {
-		videoInfo := &video.VideoInfo{
-			Id:            v.VideoId,
-			AuthorId:      v.AuthorId,
-			Title:         v.Title,
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
+		videoInfo, err := cache.GetVideoInfoById(l.svcCtx.DB, l.svcCtx.RDS, v.VideoId)
+		if err != nil {
+			return nil, err
 		}
 		videoList = append(videoList, videoInfo)
 	}

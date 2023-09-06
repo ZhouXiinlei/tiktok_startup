@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"tikstart/common"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/video/internal/cache"
 
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
@@ -48,15 +48,10 @@ func (l *DeleteCommentLogic) DeleteComment(in *video.DeleteCommentRequest) (*vid
 			return utils.InternalWithDetails("error deleting comment", err)
 		}
 
-		if err := tx.
-			Clauses(clause.Locking{Strength: "UPDATE"}).
-			Model(&model.Video{}).
-			Where("video_id = ?", comment.VideoId).
-			Update("comment_count", gorm.Expr("comment_count - ?", 1)).
-			Error; err != nil {
-			return utils.InternalWithDetails("error reducing comment count", err)
+		err = cache.ModifyVideoCounts(tx, l.svcCtx.RDS, in.CommentId, "comment_count", -1)
+		if err != nil {
+			return utils.InternalWithDetails("error deleting comment_count", err)
 		}
-
 		return nil
 	}); err != nil {
 		return nil, err

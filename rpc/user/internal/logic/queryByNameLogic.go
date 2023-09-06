@@ -3,12 +3,8 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"gorm.io/gorm"
-	"tikstart/common"
-	"tikstart/common/model"
 	"tikstart/rpc/user/internal/svc"
+	"tikstart/rpc/user/internal/union"
 	"tikstart/rpc/user/user"
 )
 
@@ -26,26 +22,13 @@ func NewQueryByNameLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Query
 	}
 }
 
-func (l *QueryByNameLogic) QueryByName(in *user.QueryByNameRequest) (*user.QueryResponse, error) {
+func (l *QueryByNameLogic) QueryByName(in *user.QueryByNameRequest) (*user.UserInfo, error) {
 	username := in.Username
 
-	userRecord := model.User{}
-	err := l.svcCtx.DB.Where("username = ?", username).First(&userRecord).Error
+	userInfo, err := union.GetUserInfoByName(l.svcCtx.DB, l.svcCtx.RDS, username)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, common.ErrUserNotFound.Err()
-		} else {
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+		return nil, err
 	}
 
-	return &user.QueryResponse{
-		UserId:         userRecord.UserId,
-		Username:       userRecord.Username,
-		FollowingCount: userRecord.FollowingCount,
-		FollowerCount:  userRecord.FollowerCount,
-		Password:       userRecord.Password,
-		CreatedAt:      userRecord.CreatedAt.Unix(),
-		UpdatedAt:      userRecord.UpdatedAt.Unix(),
-	}, nil
+	return userInfo, nil
 }

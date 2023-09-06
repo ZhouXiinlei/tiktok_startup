@@ -55,11 +55,14 @@ func (l *GetFollowerListLogic) GetFollowerList(req *types.GetFollowerListRequest
 			return
 		}
 		writer.Write(types.User{
-			Id:            follower.UserId,
-			Name:          follower.Username,
-			FollowCount:   follower.FollowingCount,
-			FollowerCount: follower.FollowerCount,
-			IsFollow:      isFollowRes.IsFollow,
+			Id:             follower.UserId,
+			Name:           follower.Username,
+			FollowCount:    follower.FollowingCount,
+			FollowerCount:  follower.FollowerCount,
+			IsFollow:       isFollowRes.IsFollow,
+			TotalFavorited: follower.TotalFavorited,
+			WorkCount:      follower.WorkCount,
+			FavoriteCount:  follower.FavoriteCount,
 		})
 	}, func(pipe <-chan types.User, writer mr.Writer[[]types.User], cancel func(error)) {
 		list := make([]types.User, len(GetFollowerListData.FollowerList))

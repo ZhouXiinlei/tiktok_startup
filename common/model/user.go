@@ -10,8 +10,11 @@ type User struct {
 	Username string `gorm:"type:varchar(24);not null;uniqueIndex"`
 	Password []byte `gorm:"type:VARBINARY(60);not null"`
 
-	FollowingCount int64
-	FollowerCount  int64
+	FollowingCount int64 `gorm:"not null;default:0"`
+	FollowerCount  int64 `gorm:"not null;default:0"`
+	WorkCount      int64 `gorm:"not null;default:0"`
+	TotalFavorited int64 `gorm:"not null;default:0"`
+	FavoriteCount  int64 `gorm:"not null;default:0"`
 
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`

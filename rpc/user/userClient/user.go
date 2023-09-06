@@ -25,25 +25,28 @@ type (
 	GetFriendListResponse    = user.GetFriendListResponse
 	IsFollowRequest          = user.IsFollowRequest
 	IsFollowResponse         = user.IsFollowResponse
+	ModFavoriteRequest       = user.ModFavoriteRequest
+	ModWorkCountRequest      = user.ModWorkCountRequest
 	PingRequest              = user.PingRequest
 	PingResponse             = user.PingResponse
 	QueryByIdRequest         = user.QueryByIdRequest
 	QueryByNameRequest       = user.QueryByNameRequest
-	QueryResponse            = user.QueryResponse
 	UnFollowRequest          = user.UnFollowRequest
 	UserInfo                 = user.UserInfo
 
 	User interface {
 		Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 		Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-		QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*QueryResponse, error)
-		QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*QueryResponse, error)
+		QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*UserInfo, error)
+		QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*UserInfo, error)
 		Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*Empty, error)
 		UnFollow(ctx context.Context, in *UnFollowRequest, opts ...grpc.CallOption) (*Empty, error)
 		GetFollowerList(ctx context.Context, in *GetFollowerListRequest, opts ...grpc.CallOption) (*GetFollowerListResponse, error)
 		GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error)
 		IsFollow(ctx context.Context, in *IsFollowRequest, opts ...grpc.CallOption) (*IsFollowResponse, error)
 		GetFriendList(ctx context.Context, in *GetFriendListRequest, opts ...grpc.CallOption) (*GetFriendListResponse, error)
+		ModFavorite(ctx context.Context, in *ModFavoriteRequest, opts ...grpc.CallOption) (*Empty, error)
+		ModWorkCount(ctx context.Context, in *ModWorkCountRequest, opts ...grpc.CallOption) (*Empty, error)
 	}
 
 	defaultUser struct {
@@ -67,12 +70,12 @@ func (m *defaultUser) Create(ctx context.Context, in *CreateRequest, opts ...grp
 	return client.Create(ctx, in, opts...)
 }
 
-func (m *defaultUser) QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*QueryResponse, error) {
+func (m *defaultUser) QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*UserInfo, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.QueryById(ctx, in, opts...)
 }
 
-func (m *defaultUser) QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*QueryResponse, error) {
+func (m *defaultUser) QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*UserInfo, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.QueryByName(ctx, in, opts...)
 }
@@ -105,4 +108,14 @@ func (m *defaultUser) IsFollow(ctx context.Context, in *IsFollowRequest, opts ..
 func (m *defaultUser) GetFriendList(ctx context.Context, in *GetFriendListRequest, opts ...grpc.CallOption) (*GetFriendListResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.GetFriendList(ctx, in, opts...)
+}
+
+func (m *defaultUser) ModFavorite(ctx context.Context, in *ModFavoriteRequest, opts ...grpc.CallOption) (*Empty, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.ModFavorite(ctx, in, opts...)
+}
+
+func (m *defaultUser) ModWorkCount(ctx context.Context, in *ModWorkCountRequest, opts ...grpc.CallOption) (*Empty, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.ModWorkCount(ctx, in, opts...)
 }

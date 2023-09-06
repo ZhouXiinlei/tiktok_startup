@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"tikstart/common/model"
 	"tikstart/common/utils"
+	"tikstart/rpc/user/internal/cache"
 	"tikstart/rpc/user/internal/svc"
 	"tikstart/rpc/user/internal/union"
 	"tikstart/rpc/user/user"
@@ -29,7 +29,7 @@ func NewFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FollowLogi
 func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 	// api should check User existence first, this interface doesn't
 	err := l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
-		res, err := union.IsFollow(l.svcCtx, in.UserId, in.TargetId)
+		res, err := union.IsFollow(tx, l.svcCtx.RDS, in.UserId, in.TargetId)
 		if err != nil {
 			return err
 		}
@@ -44,36 +44,30 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 			FollowedId: in.TargetId,
 		}).Error
 		if err != nil {
-			return utils.InternalWithDetails("error creating follow record", err)
+			return utils.InternalWithDetails("(redis)error creating follow record", err)
 		}
 
-		// modify count
-		err = tx.
-			Clauses(clause.Locking{Strength: "UPDATE"}).
-			Model(&model.User{}).
-			Where("user_id = ?", in.UserId).
-			UpdateColumn("following_count", gorm.Expr("following_count + ?", 1)).
-			Error
+		err = l.svcCtx.RDS.Set(cache.GenFollowKey(in.UserId, in.TargetId), "yes")
 		if err != nil {
-			return utils.InternalWithDetails("error adding following_count", err)
+			return utils.InternalWithDetails("(redis)error updating follow relation", err)
 		}
 
-		err = tx.
-			Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{}).
-			Where("user_id = ?", in.TargetId).
-			UpdateColumn("follower_count", gorm.Expr("follower_count + ?", 1)).
-			Error
+		// update user counts
+		err = union.ModifyUserCounts(tx, l.svcCtx.RDS, in.UserId, "following_count", 1)
 		if err != nil {
-			return utils.InternalWithDetails("error adding follower_count", err)
+			return err
+		}
+		err = union.ModifyUserCounts(tx, l.svcCtx.RDS, in.TargetId, "follower_count", 1)
+		if err != nil {
+			return err
 		}
 
 		// check friend relation
-		var count int64
-		err = l.svcCtx.DB.Model(&model.Follow{}).Where("follower_id = ? AND followed_id = ?", in.TargetId, in.UserId).Count(&count).Error
+		res, err = union.IsFollow(tx, l.svcCtx.RDS, in.TargetId, in.UserId)
 		if err != nil {
-			return utils.InternalWithDetails("error querying friend record", err)
+			return err
 		}
-		if count > 0 {
+		if res {
 			idA, idB := utils.SortId(in.UserId, in.TargetId)
 			err = tx.Create(&model.Friend{
 				UserAId: idA,
@@ -83,12 +77,13 @@ func (l *FollowLogic) Follow(in *user.FollowRequest) (*user.Empty, error) {
 				return utils.InternalWithDetails("error creating friend record", err)
 			}
 		}
+
 		return nil
 	})
-
-	// transaction end, handle error and return empty
+	// transaction end, handle error if occurred
 	if err != nil {
 		return nil, err
 	}
+
 	return &user.Empty{}, nil
 }

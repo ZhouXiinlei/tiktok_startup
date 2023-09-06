@@ -5,6 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/status"
 	"tikstart/common/model"
+	"tikstart/rpc/user/userClient"
 	"tikstart/rpc/video/internal/svc"
 	"tikstart/rpc/video/video"
 )
@@ -32,6 +33,13 @@ func (l *PublishVideoLogic) PublishVideo(in *video.PublishVideoRequest) (*video.
 	}
 	if err := l.svcCtx.DB.Create(newVideo).Error; err != nil {
 		return nil, status.Error(1000, err.Error())
+	}
+	_, err := l.svcCtx.UserRpc.ModWorkCount(l.ctx, &userClient.ModWorkCountRequest{
+		UserId: in.Video.AuthorId,
+		Delta:  1,
+	})
+	if err != nil {
+		return nil, err
 	}
 	return &video.Empty{}, nil
 }
