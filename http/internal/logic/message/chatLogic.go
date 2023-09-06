@@ -28,10 +28,17 @@ func NewChatLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ChatLogic {
 func (l *ChatLogic) Chat(req *types.MessageChatRequest) (resp *types.MessageChatResponse, err error) {
 	userClaims, _ := utils.ParseToken(req.Token, l.svcCtx.Config.JwtAuth.Secret)
 
+	var preTime int64
+	if req.PreMsgTime > 1e12 {
+		preTime = req.PreMsgTime / 1000
+	} else {
+		preTime = req.PreMsgTime
+	}
+
 	res, err := l.svcCtx.ContactRpc.GetMessageList(l.ctx, &contact.GetMessageListRequest{
-		FromId:     userClaims.UserId,
-		ToId:       req.ToUserId,
-		PreMsgTime: req.PreMsgTime,
+		FromId:     req.ToUserId,
+		ToId:       userClaims.UserId,
+		PreMsgTime: preTime,
 	})
 	if err != nil {
 		return nil, utils.ReturnInternalError(l.ctx, status.Convert(err), err)
