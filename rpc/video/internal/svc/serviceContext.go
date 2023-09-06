@@ -6,7 +6,6 @@ import (
 	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"tikstart/common/model"
 	"tikstart/rpc/user/userClient"
@@ -26,7 +25,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			TablePrefix:   c.MySQL.TablePrefix, // 表明前缀，可不设置
 			SingularTable: true,                // 使用单数表名，即不会在表名后添加复数s
 		},
-		Logger: logger.Default.LogMode(logger.Info),
+		//Logger: logger.Default.LogMode(logger.Info),
+		SkipDefaultTransaction: true,
 	})
 	rds := redis.MustNewRedis(c.Redis.RedisConf)
 	if err != nil {
