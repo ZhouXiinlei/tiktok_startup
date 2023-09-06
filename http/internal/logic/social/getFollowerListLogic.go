@@ -3,6 +3,7 @@ package social
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/mr"
+	"sync"
 	"tikstart/rpc/user/user"
 
 	"tikstart/http/internal/svc"
@@ -35,16 +36,16 @@ func (l *GetFollowerListLogic) GetFollowerList(req *types.GetFollowerListRequest
 		return
 	}
 
-	order := make(map[int64]int, len(GetFollowerListData.FollowerList))
-	//var order sync.Map
-	lock := make(chan struct{})
+	//order := make(map[int64]int, len(GetFollowerListData.FollowerList))
+	var order sync.Map
+	//lock := make(chan struct{})
 	followerList, err := mr.MapReduce(func(source chan<- interface{}) {
 		for i, v := range GetFollowerListData.FollowerList {
 			source <- v
-			order[v.UserId] = i
-			//order.Store(v.UserId, i)
+			//order[v.UserId] = i
+			order.Store(v.UserId, i)
 		}
-		lock <- struct{}{}
+		//lock <- struct{}{}
 	}, func(item interface{}, writer mr.Writer[types.User], cancel func(error)) {
 		follower := item.(*user.UserInfo)
 
@@ -68,14 +69,14 @@ func (l *GetFollowerListLogic) GetFollowerList(req *types.GetFollowerListRequest
 			FavoriteCount:  follower.FavoriteCount,
 		})
 	}, func(pipe <-chan types.User, writer mr.Writer[[]types.User], cancel func(error)) {
-		<-lock
+		//<-lock
 		list := make([]types.User, len(GetFollowerListData.FollowerList))
 		for item := range pipe {
 			temp := item
-			i, _ := order[temp.Id]
-			list[i] = temp
-			//i, _ := order.Load(temp.Id)
-			//list[i.(int)] = temp
+			//i, _ := order[temp.Id]
+			//list[i] = temp
+			i, _ := order.Load(temp.Id)
+			list[i.(int)] = temp
 		}
 		writer.Write(list)
 	})
