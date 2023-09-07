@@ -46,7 +46,7 @@ func (l *GetFavoriteListLogic) GetFavoriteList(req *types.GetFavoriteListRequest
 	//lock := make(chan struct{})
 	favoriteList, err := mr.MapReduce(func(source chan<- *video.VideoInfo) {
 		for i, v := range favoriteListRes.VideoList {
-			//source <- v
+			source <- v
 			//order[v.Id] = i
 			order.Store(v.Id, i)
 		}
