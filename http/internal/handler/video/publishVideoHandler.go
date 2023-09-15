@@ -27,8 +27,8 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		Userclaims, _ := utils.ParseToken(req.Token, svcCtx.Config.JwtAuth.Secret)
-		UserId := Userclaims.UserId
+		userclaims, _ := utils.ParseToken(req.Token, svcCtx.Config.JwtAuth.Secret)
+		UserId := userclaims.UserId
 		file, fileHeader, err := r.FormFile("data")
 		if err != nil {
 			httpx.Error(w, schema.ServerError{
@@ -79,8 +79,8 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		fileName := uuid.New().String() + filepath.Ext(fileHeader.Filename)
-		Keyname := "/video/" + fileName
-		_, err = svcCtx.TengxunyunClient.Object.Put(context.Background(), Keyname, file, nil)
+		keyName := "/video/" + fileName
+		_, err = svcCtx.TengxunyunClient.Object.Put(context.Background(), keyName, file, nil)
 		if err != nil {
 			httpx.Error(w, schema.ServerError{
 				ApiError: schema.ApiError{
@@ -92,7 +92,7 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			})
 			return
 		}
-		Url, err := url.Parse(svcCtx.Config.COS.Endpoint)
+		cdnUrl, err := url.Parse(svcCtx.Config.CDNBaseURL)
 		if err != nil {
 			httpx.Error(w, schema.ServerError{
 				ApiError: schema.ApiError{
@@ -104,19 +104,19 @@ func PublishVideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			})
 			return
 		}
-		Url.Path = Keyname
-		VideoUrl := Url.String()
+		cdnUrl.Path = keyName
+		videoUrl := cdnUrl.String()
 
 		// 获取视频封面的url，地址和视频地址一样，只是所在目录是/video/cover/，文件名是视频文件名+.jpg后缀
-		Url.Path = "/video/cover/" + strings.Replace(fileName, ".mp4", ".jpg", -1)
-		CoverUrl := Url.String()
+		cdnUrl.Path = "/video/cover/" + strings.Replace(fileName, ".mp4", ".jpg", -1)
+		coverUrl := cdnUrl.String()
 
 		_, err = svcCtx.VideoRpc.PublishVideo(r.Context(), &rpcvideo.PublishVideoRequest{
 			Video: &rpcvideo.VideoInfo{
 				AuthorId: UserId,
 				Title:    req.Title,
-				PlayUrl:  VideoUrl,
-				CoverUrl: CoverUrl,
+				PlayUrl:  videoUrl,
+				CoverUrl: coverUrl,
 			},
 		})
 		if err != nil {

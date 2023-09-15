@@ -15,5 +15,6 @@ type Config struct {
 		Secret string
 		Expire int64
 	}
-	COS tikcos.TengxunyunCfg
+	COS        tikcos.TengxunyunCfg
+	CDNBaseURL string
 }
